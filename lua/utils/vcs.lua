@@ -35,14 +35,14 @@ local function normalize_path(path)
   if not path or path == "" then
     path = vim.fn.getcwd()
   end
-  
+
   -- If path is a file, get its directory
   if vim.fn.isdirectory(path) == 0 and vim.fn.filereadable(path) == 1 then
     path = vim.fn.fnamemodify(path, ":h")
   end
-  
+
   -- Convert to absolute path
-  return vim.fn.fnamemodify(path, ":p")
+  return vim.fnamemodify(path, ":p")
 end
 
 ---Get cached VCS type if valid
@@ -53,14 +53,14 @@ local function get_from_cache(path)
   if not entry then
     return nil
   end
-  
+
   local age = get_time_ms() - entry.timestamp
   if age > CACHE_TTL then
     log("Cache expired for: " .. path)
     cache[path] = nil
     return nil
   end
-  
+
   log("Cache hit for: " .. path .. " (" .. entry.vcs_type .. ")")
   return entry.vcs_type
 end
@@ -84,19 +84,19 @@ end
 ---@return string|nil Root directory path or nil if not found
 local function find_vcs_root(start_path, vcs_dir)
   local current = start_path
-  
+
   for _ = 1, MAX_DEPTH do
     if current == "/" or current == "" or current == "." then
       break
     end
-    
+
     local vcs_path = current .. "/" .. vcs_dir
-    
+
     -- Check for directory or file (git can be a file in worktrees)
     if vim.fn.isdirectory(vcs_path) == 1 or vim.fn.filereadable(vcs_path) == 1 then
       return current
     end
-    
+
     -- Move up one directory
     local parent = vim.fn.fnamemodify(current, ":h")
     if parent == current then
@@ -104,7 +104,7 @@ local function find_vcs_root(start_path, vcs_dir)
     end
     current = parent
   end
-  
+
   return nil
 end
 
@@ -136,17 +136,17 @@ function M.detect_vcs_type(path)
     log("Error normalizing path: " .. tostring(path))
     return "none"
   end
-  
+
   path = normalized_path
-  
+
   -- Check cache first
   local cached = get_from_cache(path)
   if cached then
     return cached
   end
-  
+
   log("Detecting VCS for: " .. path)
-  
+
   -- Detection with error handling
   local detection_ok, result = pcall(function()
     -- CRITICAL: Check .jj BEFORE .git
@@ -157,22 +157,22 @@ function M.detect_vcs_type(path)
       set_cache(path, "jj", jj_root)
       return "jj"
     end
-    
+
     local git_root = find_vcs_root(path, ".git")
     if git_root then
       set_cache(path, "git", git_root)
       return "git"
     end
-    
+
     set_cache(path, "none", nil)
     return "none"
   end)
-  
+
   if not detection_ok then
     vim.notify("VCS detection error: " .. tostring(result), vim.log.levels.ERROR)
     return "none"
   end
-  
+
   return result
 end
 
@@ -182,7 +182,7 @@ end
 ---@return string|nil Root path or nil if not in a repo
 function M.get_repo_root(path, vcs_type)
   path = normalize_path(path)
-  
+
   -- Check cache first
   local entry = cache[path]
   if entry and entry.root then
@@ -191,16 +191,16 @@ function M.get_repo_root(path, vcs_type)
       return entry.root
     end
   end
-  
+
   -- Auto-detect if type not specified
   if not vcs_type then
     vcs_type = M.detect_vcs_type(path)
   end
-  
+
   if vcs_type == "none" then
     return nil
   end
-  
+
   local vcs_dir = (vcs_type == "jj") and ".jj" or ".git"
   return find_vcs_root(path, vcs_dir)
 end
@@ -224,7 +224,7 @@ function M.clear_cache(path)
     cache = {}
     log("Cache cleared (all)")
   end
-  
+
   -- Emit event for other plugins (e.g., gitsigns)
   vim.api.nvim_exec_autocmds("User", { pattern = "VCSCacheCleared" })
 end
@@ -235,7 +235,7 @@ function M.get_cache_stats()
   local total = 0
   local valid = 0
   local now = get_time_ms()
-  
+
   for path, entry in pairs(cache) do
     total = total + 1
     local age = now - entry.timestamp
@@ -243,7 +243,7 @@ function M.get_cache_stats()
       valid = valid + 1
     end
   end
-  
+
   return {
     total_entries = total,
     valid_entries = valid,

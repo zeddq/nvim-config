@@ -33,6 +33,21 @@ vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagn
 -- Split windows
 vim.keymap.set("n", "<leader>sv", ":vsplit<CR>", { desc = "Split vertically" })
 vim.keymap.set("n", "<leader>sh", ":split<CR>", { desc = "Split horizontally" })
--- require("which-key").add().wk.add("<leader>?", function()
---   require("which-key").show({ global = false })
--- end, "Buffer Local Keymaps (which-key)")
+require("which-key").add().wk.add("<leader>?", function()
+  require("which-key").show({ global = false })
+end, "Buffer Local Keymaps (which-key)")
+
+local lsp_utils = require("utils.lsp")
+
+-- Create commands
+vim.api.nvim_create_user_command("LspLogToggle", lsp_utils.toggle_log_level, {})
+vim.api.nvim_create_user_command("LspLogShow", lsp_utils.show_log_level, {})
+vim.api.nvim_create_user_command("LspLogOpen", lsp_utils.open_log, {})
+vim.api.nvim_create_user_command("LspLogTail", lsp_utils.tail_log, {})
+
+-- Keymaps
+vim.keymap.set("n", "<leader>ld", lsp_utils.toggle_log_level, { desc = "Toggle LSP log level" })
+vim.keymap.set("n", "<leader>ll", lsp_utils.open_log, { desc = "Open LSP log" })
+vim.keymap.set("n", "<leader>lt", lsp_utils.tail_log, { desc = "Tail LSP log" })
+
+--local osv = require("osv")
