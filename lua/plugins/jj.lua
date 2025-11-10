@@ -38,35 +38,35 @@ return {
         },
       })
 
-      -- Create user commaqnds for convenience (in addition to :J command)
-      local jj = require("jj")
+      -- Create user commands for convenience (in addition to :J command)
+      local cmd = require("jj.cmd")
 
       vim.api.nvim_create_user_command("JJStatus", function()
-        jj.status()
+        cmd.status()
       end, { desc = "Jujutsu status" })
 
       vim.api.nvim_create_user_command("JJLog", function()
-        jj.log()
+        cmd.log()
       end, { desc = "Jujutsu log" })
 
       vim.api.nvim_create_user_command("JJDescribe", function()
-        jj.describe()
+        cmd.describe()
       end, { desc = "Jujutsu describe (edit change description)" })
 
       vim.api.nvim_create_user_command("JJNew", function()
-        jj.new()
+        cmd.new()
       end, { desc = "Jujutsu new (create new change)" })
 
       vim.api.nvim_create_user_command("JJEdit", function()
-        jj.edit()
+        cmd.edit()
       end, { desc = "Jujutsu edit (edit existing change)" })
 
       vim.api.nvim_create_user_command("JJDiff", function()
-        jj.diff()
+        cmd.diff()
       end, { desc = "Jujutsu diff" })
 
       vim.api.nvim_create_user_command("JJSquash", function()
-        jj.squash()
+        cmd.squash()
       end, { desc = "Jujutsu squash (squash diff to parent)" })
 
       -- Picker commands (if available)

@@ -42,7 +42,7 @@ local function normalize_path(path)
   end
 
   -- Convert to absolute path
-  return vim.fnamemodify(path, ":p")
+  return vim.fn.fnamemodify(path, ":p")
 end
 
 ---Get cached VCS type if valid

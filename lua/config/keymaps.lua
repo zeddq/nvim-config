@@ -33,9 +33,10 @@ vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagn
 -- Split windows
 vim.keymap.set("n", "<leader>sv", ":vsplit<CR>", { desc = "Split vertically" })
 vim.keymap.set("n", "<leader>sh", ":split<CR>", { desc = "Split horizontally" })
-require("which-key").add().wk.add("<leader>?", function()
+-- which-key buffer local keymaps
+vim.keymap.set("n", "<leader>?", function()
   require("which-key").show({ global = false })
-end, "Buffer Local Keymaps (which-key)")
+end, { desc = "Buffer Local Keymaps (which-key)" })
 
 local lsp_utils = require("utils.lsp")
 

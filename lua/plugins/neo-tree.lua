@@ -200,6 +200,11 @@ return {
         group_empty_dirs = false,
         hijack_netrw_behavior = "open_default",
         use_libuv_file_watcher = true,
+        -- Auto-change neovim's cwd when setting neo-tree root
+        cwd_target = {
+          sidebar = "window",  -- neo-tree sidebar follows its own cwd
+          current = "global",   -- change neovim's global cwd when setting root
+        },
         window = {
           mappings = {
             ["<BS>"] = "navigate_up",

@@ -183,10 +183,10 @@ return {
     explorer = { enabled = false },
 
     -- scope: DISABLED - Tab-scoped buffers not needed initially
-    scope = { enabled = false },
+    scope = { enabled = true },
 
     -- input: DISABLED - Minor benefit, can add later if needed
-    input = { enabled = false },
+    input = { enabled = true },
   },
 
   -- ========================================================================
