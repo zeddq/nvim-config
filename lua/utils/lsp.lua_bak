@@ -1,0 +1,37 @@
+-- LSP Utilities Module
+-- Logging and debugging helpers for LSP servers
+
+local M = {}
+
+---Toggle LSP log level between DEBUG and WARN
+function M.toggle_log_level()
+  local current = vim.lsp.get_log_path()
+  if vim.lsp.log_level == vim.log.levels.DEBUG then
+    vim.lsp.set_log_level(vim.log.levels.WARN)
+    vim.notify("LSP log level: WARN", vim.log.levels.INFO)
+  else
+    vim.lsp.set_log_level(vim.log.levels.DEBUG)
+    vim.notify("LSP log level: DEBUG", vim.log.levels.INFO)
+  end
+end
+
+---Show current LSP log level
+function M.show_log_level()
+  local levels = { "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "OFF" }
+  local current_level = levels[vim.lsp.log_level + 1] or "UNKNOWN"
+  vim.notify("Current LSP log level: " .. current_level, vim.log.levels.INFO)
+end
+
+---Open LSP log file in a split
+function M.open_log()
+  local log_path = vim.lsp.get_log_path()
+  vim.cmd("split " .. log_path)
+end
+
+---Tail LSP log file (live updates)
+function M.tail_log()
+  local log_path = vim.lsp.get_log_path()
+  vim.cmd("split | term tail -f " .. log_path)
+end
+
+return M

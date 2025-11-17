@@ -47,3 +47,26 @@ vim.api.nvim_create_autocmd('FileType', {
   end,
   desc = 'Python-specific settings',
 })
+
+-- Zsh filetype detection
+vim.api.nvim_create_autocmd({'BufRead', 'BufNewFile'}, {
+  group = augroup,
+  pattern = {'.zshrc', '.zshenv', '.zprofile', '.zlogin', '.zlogout', '*.zsh'},
+  callback = function()
+    vim.bo.filetype = 'zsh'
+  end,
+  desc = 'Set filetype for zsh config files',
+})
+
+-- Zsh-specific settings
+vim.api.nvim_create_autocmd('FileType', {
+  group = augroup,
+  pattern = 'zsh',
+  callback = function()
+    vim.opt_local.tabstop = 2
+    vim.opt_local.shiftwidth = 2
+    vim.opt_local.expandtab = true
+    vim.opt_local.textwidth = 80
+  end,
+  desc = 'Zsh-specific settings',
+})
