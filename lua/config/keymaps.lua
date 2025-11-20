@@ -25,17 +25,18 @@ vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move line down" })
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv", { desc = "Move line up" })
 
 -- Diagnostic keymaps
-vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Go to previous diagnostic" })
-vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Go to next diagnostic" })
+vim.keymap.set("n", "[d", function() vim.diagnostic.jump({ count = -1 }) end, { desc = "Go to previous diagnostic" })
+vim.keymap.set("n", "]d", function() vim.diagnostic.jump({ count = 1 }) end, { desc = "Go to next diagnostic" })
 vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { desc = "Open diagnostic float" })
 vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic list" })
 
 -- Split windows
 vim.keymap.set("n", "<leader>sv", ":vsplit<CR>", { desc = "Split vertically" })
 vim.keymap.set("n", "<leader>sh", ":split<CR>", { desc = "Split horizontally" })
--- require("which-key").add().wk.add("<leader>?", function()
---   require("which-key").show({ global = false })
--- end, "Buffer Local Keymaps (which-key)")
+-- which-key buffer local keymaps
+vim.keymap.set("n", "<leader>?", function()
+  require("which-key").show({ global = false })
+end, { desc = "Buffer Local Keymaps (which-key)" })
 
 local lsp_utils = require("utils.lsp")
 

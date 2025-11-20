@@ -163,6 +163,16 @@ These keys only work in jj repositories:
 | `<leader>gj` | `jj.picker.status` | Picker: select changed files |
 | `<leader>gh` | `jj.picker.file_history` | Picker: file history |
 
+### Conflict Resolution (jj resolve)
+
+These keys are available in the **OUTPUT** window of the Neovim 3-way merge view (LEFT/BASE/RIGHT on top, OUTPUT on bottom):
+
+| Key | Action | Description |
+|-----|--------|-------------|
+| `<leader>ml` | Take LEFT | Replace current hunk in OUTPUT with LEFT (top-left) |
+| `<leader>mb` | Take BASE | Replace current hunk in OUTPUT with BASE (top-middle) |
+| `<leader>mr` | Take RIGHT | Replace current hunk in OUTPUT with RIGHT (top-right) |
+
 ### Git-Specific Operations (via Gitsigns)
 
 These keys only work in git repositories (gitsigns disabled in jj):

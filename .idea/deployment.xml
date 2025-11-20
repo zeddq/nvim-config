@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" remoteFilesAllowedToDisappearOnAutoupload="false">
+    <serverData>
+      <paths name="Remote Host (3662b2ce-65bb-4b8b-afb6-1cf23c2e502a)">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+            <mapping local="$USER_HOME$/.local/share/nvim" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="azure (7c61b69c-2cfe-4728-b248-a51533a4feec)">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+            <mapping local="$USER_HOME$/.local/share/nvim" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="guac">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+            <mapping local="$USER_HOME$/.local/share/nvim" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+  </component>
+</project>

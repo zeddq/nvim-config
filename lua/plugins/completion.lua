@@ -25,6 +25,9 @@ return {
       -- Load friendly snippets
       require('luasnip.loaders.from_vscode').lazy_load()
 
+      -- Load custom snippets from ~/.config/nvim/snippets/
+      require('luasnip.loaders.from_lua').lazy_load({ paths = "~/.config/nvim/snippets" })
+
       cmp.setup({
         snippet = {
           expand = function(args)

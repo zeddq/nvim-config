@@ -199,6 +199,14 @@ nvim/
 - `<leader>gj` - JJ picker: status
 - `<leader>gh` - JJ picker: file history
 
+### Conflict Resolution (jj resolve)
+
+In the Neovim 3-way merge layout (LEFT/BASE/RIGHT on top, OUTPUT on bottom):
+
+- `<leader>ml` - Merge: take LEFT into OUTPUT
+- `<leader>mb` - Merge: take BASE into OUTPUT
+- `<leader>mr` - Merge: take RIGHT into OUTPUT
+
 ### Snacks (QoL Features)
 
 - `<leader>sn` - Notification history

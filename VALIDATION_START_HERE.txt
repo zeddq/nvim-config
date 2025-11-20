@@ -1,0 +1,237 @@
+================================================================================
+                   NEOVIM 0.11+ INTEGRATION TEST SUITE
+                          START HERE - READ THIS FIRST
+================================================================================
+
+This test suite validates that all 4 subtask changes work together correctly.
+
+CHANGES BEING VALIDATED:
+  ST-A: lua/plugins/lsp.lua        → vim.lsp.config + vim.lsp.enable pattern
+  ST-B: lua/plugins/init.lua       → vim.loop.fs_stat → vim.uv.fs_stat
+  ST-C: lua/utils/vcs.lua          → vim.loop.hrtime → vim.uv.hrtime
+  ST-D: lua/plugins/none-ls.lua    → Removed automatic_installation
+
+================================================================================
+                             CHOOSE YOUR PATH
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ I'M IN A HURRY (5 MINUTES)                                                  │
+│ ═══════════════════════════════════════════════════════════════════════════ │
+│                                                                             │
+│ Read:  QUICK_VALIDATION.md                                                 │
+│        (~5 minutes - just the checklist)                                    │
+│                                                                             │
+│ Then:  Run these 6 tests inside Neovim                                     │
+│        1. :LspInfo              (see all 5 servers)                         │
+│        2. :messages             (check no warnings)                         │
+│        3. :Mason                (verify UI)                                 │
+│        4. VCS detection test    (test vcs.lua)                              │
+│        5. Format test           (:lua vim.lsp.buf.format())                 │
+│        6. Clean startup         (nvim --noplugin +qa!)                      │
+│                                                                             │
+│ Result: "All tests passed" ✓ Integration successful!                        │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ I WANT DETAILED EXPLANATIONS (15 MINUTES)                                   │
+│ ═══════════════════════════════════════════════════════════════════════════ │
+│                                                                             │
+│ Read:  INTEGRATION_TEST_GUIDE.md                                            │
+│        (~15 minutes - detailed test descriptions)                           │
+│                                                                             │
+│ This includes:                                                              │
+│   • What each test validates                                                │
+│   • Expected outputs for each test                                          │
+│   • Potential issues and how to fix them                                    │
+│   • File verification with grep commands                                    │
+│   • Troubleshooting guide                                                   │
+│                                                                             │
+│ Run:   VALIDATION_COMMANDS.sh                                               │
+│        (Automated testing in terminal)                                      │
+│                                                                             │
+│ Result: Full understanding + test validation ✓                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ I PREFER REFERENCE MATERIALS (5 MINUTES)                                    │
+│ ═══════════════════════════════════════════════════════════════════════════ │
+│                                                                             │
+│ Read:  TEST_MATRIX.md                                                       │
+│        (~5 minutes - visual matrices and reference)                         │
+│                                                                             │
+│ This includes:                                                              │
+│   • Test coverage matrix (which test validates which change)                │
+│   • Expected test output examples                                           │
+│   • Command quick reference                                                │
+│   • Decision tree for troubleshooting                                       │
+│                                                                             │
+│ Use:   VALIDATION_COMMANDS.sh (for actual testing)                         │
+│                                                                             │
+│ Result: Quick reference + automated validation ✓                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+================================================================================
+                            QUICK START (5 MINUTES)
+================================================================================
+
+1. OPEN A FILE IN NEOVIM:
+   $ nvim ~/.config/nvim/lua/plugins/lsp.lua
+
+2. RUN THESE COMMANDS (inside Neovim):
+   :LspInfo              → Should show 5 servers
+   :messages             → Should be clean, no warnings
+   :Mason                → Should open with rounded border
+   :qa!                  → Exit
+
+3. TEST VCS DETECTION (if in a git/jj repo):
+   :lua print(require("utils.vcs").detect_vcs_type())
+   → Should return "git" or "jj"
+
+4. TEST FORMATTING:
+   :lua vim.lsp.buf.format()
+   → Should work without errors
+
+5. CHECK CLEAN STARTUP:
+   $ nvim --noplugin +qa!
+   → Should exit immediately
+
+================================================================================
+                         EXPECTED RESULTS
+================================================================================
+
+PASS CRITERIA:
+  ✓ Clean startup (no errors)
+  ✓ 5 LSP servers in :LspInfo
+  ✓ No deprecation warnings in :messages
+  ✓ VCS detection returns "git" or "jj"
+  ✓ Formatting works without errors
+  ✓ Mason UI displays with rounded borders
+
+FAIL INDICATORS:
+  ✗ Error on startup
+  ✗ Fewer than 5 servers in :LspInfo
+  ✗ Warnings about vim.loop or on_attach
+  ✗ VCS detection returns "none"
+  ✗ Formatting errors
+  ✗ Mason UI broken
+
+================================================================================
+                         VALIDATION FILES
+================================================================================
+
+File                          Size    Purpose
+─────────────────────────────────────────────────────────────────────────────
+VALIDATION_README.md          9.8K   Overview & orientation (you should read this)
+QUICK_VALIDATION.md           5.0K   5-minute checklist (START HERE if in a hurry)
+INTEGRATION_TEST_GUIDE.md     12K    Detailed test guide (START HERE for details)
+TEST_MATRIX.md                7.2K   Reference matrices (START HERE for lookup)
+VALIDATION_COMMANDS.sh        6.9K   Executable test script (RUN THIS for automation)
+VALIDATION_START_HERE.txt      (this file)
+
+================================================================================
+                      TROUBLESHOOTING QUICK FIXES
+================================================================================
+
+PROBLEM: vim.uv Not Found
+FIX: Upgrade Neovim to 0.11+
+  $ nvim --version  # Should show v0.11.0+
+
+PROBLEM: Some LSP Servers Missing
+FIX: Install via Mason
+  :Mason
+  # Then search for and install each missing server
+
+PROBLEM: Deprecation Warnings
+FIX: Verify changes were applied
+  $ grep "vim.uv.fs_stat" lua/plugins/init.lua
+  $ grep "vim.uv.hrtime" lua/utils/vcs.lua
+
+PROBLEM: Formatting Fails
+FIX: Install formatters via Mason
+  :Mason
+  # Install: stylua, ruff, prettier
+
+PROBLEM: :Mason Doesn't Open
+FIX: Reload LSP config
+  :e lua/plugins/lsp.lua
+  :source %
+  :Mason
+
+================================================================================
+                           FILE VERIFICATION
+================================================================================
+
+Quick grep commands to verify each change was applied:
+
+ST-A - vim.lsp.config pattern (should return 5):
+  $ grep -c "vim.lsp.config\[" lua/plugins/lsp.lua
+
+ST-B - vim.uv.fs_stat (should return 1):
+  $ grep -c "vim.uv.fs_stat" lua/plugins/init.lua
+
+ST-B - vim.loop.fs_stat should NOT exist (should return 0):
+  $ grep -c "vim.loop.fs_stat" lua/plugins/init.lua
+
+ST-C - vim.uv.hrtime (should return 1):
+  $ grep -c "vim.uv.hrtime" lua/utils/vcs.lua
+
+ST-C - vim.loop.hrtime should NOT exist (should return 0):
+  $ grep -c "vim.loop.hrtime" lua/utils/vcs.lua
+
+ST-D - automatic_installation should NOT exist (should return 0):
+  $ grep -c "automatic_installation" lua/plugins/none-ls.lua
+
+================================================================================
+                         NEXT STEPS
+================================================================================
+
+1. PICK YOUR APPROACH:
+   → Hurry: Read QUICK_VALIDATION.md
+   → Details: Read INTEGRATION_TEST_GUIDE.md
+   → Reference: Read TEST_MATRIX.md
+
+2. RUN THE TESTS:
+   → Manual: Follow the checklist inside Neovim
+   → Automated: Run VALIDATION_COMMANDS.sh
+
+3. CHECK RESULTS:
+   → All pass? Integration successful ✓
+   → Some fail? Use troubleshooting guide
+
+4. NEXT:
+   → Use Neovim normally (all changes integrated)
+   → Or commit changes if satisfied with validation
+
+================================================================================
+                            KEY REQUIREMENTS
+================================================================================
+
+Neovim Version:  0.11.0 or later (REQUIRED)
+Mason:           Latest version (for package management)
+lazy.nvim:       Latest version (for plugin management)
+All servers:     Must be installed via Mason
+
+================================================================================
+                           PROGRESS TRACKER
+================================================================================
+
+Use this to track your validation progress:
+
+[ ] Step 1: Read QUICK_VALIDATION.md
+[ ] Step 2: Run startup test (nvim --noplugin +qa!)
+[ ] Step 3: Run :LspInfo (verify 5 servers)
+[ ] Step 4: Run :messages (verify no warnings)
+[ ] Step 5: Run :Mason (verify UI)
+[ ] Step 6: Test VCS detection
+[ ] Step 7: Test formatting
+[ ] Step 8: Verify all changes with grep
+
+RESULT: __________  (PASS / FAIL)
+
+================================================================================
+
+                    START WITH: QUICK_VALIDATION.md
+                    THEN RUN: VALIDATION_COMMANDS.sh
+
+================================================================================

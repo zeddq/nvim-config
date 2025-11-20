@@ -46,12 +46,14 @@ snacks.nvim is a collection of 30+ quality-of-life plugins for Neovim developed 
 **Chosen:** Create dedicated `nvim/lua/plugins/snacks.lua`
 
 **Rationale:**
+
 - Clean separation of concerns
 - Easier maintenance and future updates
 - Follows existing modular pattern (lsp.lua, completion.lua, etc.)
 - Snacks configuration is substantial (~280 lines)
 
 **File Structure:**
+
 ```
 nvim/lua/plugins/
 ├── snacks.lua     # NEW - snacks configuration
@@ -76,6 +78,7 @@ nvim/lua/plugins/
 **NO plugins removed!** This is a pure addition strategy.
 
 **Preserved:**
+
 - ✅ telescope.nvim - Fuzzy finder (mature, extensive ecosystem)
 - ✅ nvim-tree - File explorer (stable, proven)
 - ✅ lualine - Statusline (no snacks replacement)
@@ -89,6 +92,7 @@ nvim/lua/plugins/
 **Strategy:** Add new bindings in `<leader>s` namespace, zero conflicts
 
 **Preserved:**
+
 - `<leader>e` - nvim-tree toggle
 - `<leader>f[f/g/b/h/r]` - telescope pickers
 - All LSP bindings (`gd`, `gr`, `K`, etc.)
@@ -99,6 +103,7 @@ nvim/lua/plugins/
 **Configuration:** `priority = 1000, lazy = false`
 
 **Rationale:**
+
 - snacks.nvim documentation recommendation
 - Infrastructure role (notifier, bigfile need early availability)
 - Internal lazy-loading of modules
@@ -113,11 +118,13 @@ nvim/lua/plugins/
 **Purpose:** Automatically disable heavy features for files >1.5MB
 
 **What it does:**
+
 - Disables treesitter, syntax, and animations for large files
 - Prevents lag when opening logs, minified JS, datasets
 - Invisible optimization - just works
 
 **Configuration:**
+
 ```lua
 bigfile = {
   enabled = true,
@@ -126,6 +133,7 @@ bigfile = {
 ```
 
 **Benefits:**
+
 - Opens 10MB+ files instantly
 - No manual feature toggling needed
 - Integrates with other modules (disables indent for large files)
@@ -137,6 +145,7 @@ bigfile = {
 **Purpose:** Welcome screen with recent files, projects, git status
 
 **What it shows:**
+
 - Header art
 - Recent files (last 10 edited)
 - Projects (from patterns: .git, package.json, etc.)
@@ -146,6 +155,7 @@ bigfile = {
 **Keybinding:** `<leader>sd` - Open dashboard manually
 
 **Configuration:**
+
 ```lua
 dashboard = {
   enabled = true,
@@ -161,11 +171,13 @@ dashboard = {
 ```
 
 **Benefits:**
+
 - Quick access to recent work
 - Visual git status overview
 - Replaces empty Neovim startup
 
 **Known Issues:**
+
 - Requires function wrapping for lazy.nvim (already implemented)
 - which-key conflict when pressing 'g' (minor, cosmetic)
 
@@ -178,6 +190,7 @@ dashboard = {
 **What it replaces:** Native `vim.notify` (poor UX)
 
 **Features:**
+
 - Persistent notification history
 - Automatic timeout (3s default)
 - Error notifications stay longer
@@ -185,10 +198,12 @@ dashboard = {
 - Queueing for multiple notifications
 
 **Keybindings:**
+
 - `<leader>sn` - Show notification history
 - `<leader>snd` - Dismiss all notifications
 
 **Configuration:**
+
 ```lua
 notifier = {
   enabled = true,
@@ -203,12 +218,14 @@ notifier = {
 ```
 
 **Benefits:**
+
 - Never miss LSP errors or warnings
 - Mason installation feedback visible
 - Notification history for debugging
 - No silent failures
 
 **Known Issues:**
+
 - Minor cursor flickering during LSP progress (Issue #613, rare)
 
 ---
@@ -220,6 +237,7 @@ notifier = {
 **What it enhances:** Default Neovim statuscolumn + gitsigns.nvim
 
 **Features:**
+
 - Git signs (add, change, delete) on left
 - Diagnostic signs (error, warn, info) on left
 - Fold markers on right
@@ -227,6 +245,7 @@ notifier = {
 - Auto-width adjustment
 
 **Configuration:**
+
 ```lua
 statuscolumn = {
   enabled = true,
@@ -239,11 +258,13 @@ statuscolumn = {
 ```
 
 **Benefits:**
+
 - Cleaner git sign rendering
 - Better diagnostic visibility
 - No conflicts with gitsigns (built-in integration)
 
 **Integration Validated:**
+
 - ✅ Works with gitsigns.nvim (Issue #613 research)
 - ✅ Works with LSP diagnostics
 - ✅ Works with fold markers
@@ -257,12 +278,14 @@ statuscolumn = {
 **What it shows:** Vertical lines showing indentation levels
 
 **Features:**
+
 - Shows all indent levels (not just scope)
 - Configurable character (│)
 - Auto-disabled for large files (bigfile integration)
 - Per-filetype filtering available
 
 **Configuration:**
+
 ```lua
 indent = {
   enabled = true,
@@ -274,11 +297,13 @@ indent = {
 ```
 
 **Benefits:**
+
 - Easier to read nested code (Python, Lua, JS)
 - Visual structure clarity
 - No performance impact (faster than indent-blankline)
 
 **Disable for specific filetypes:**
+
 ```lua
 -- In snacks.lua, add filter function:
 filter = function(buf)
@@ -294,12 +319,14 @@ end,
 **Purpose:** Highlight all occurrences of word under cursor
 
 **What it does:**
+
 - Uses LSP references for accurate highlighting
 - 200ms debounce prevents lag
 - Works in normal, insert, command modes
 - Complements LSP documentHighlight
 
 **Configuration:**
+
 ```lua
 words = {
   enabled = true,
@@ -309,6 +336,7 @@ words = {
 ```
 
 **Benefits:**
+
 - Quick variable usage overview
 - Better code navigation
 - No conflicts with existing LSP
@@ -320,16 +348,19 @@ words = {
 **Purpose:** Optimize initial file load for small files
 
 **What it does:**
+
 - Faster syntax loading
 - Invisible optimization
 - No configuration needed
 
 **Configuration:**
+
 ```lua
 quickfile = { enabled = true }
 ```
 
 **Benefits:**
+
 - Slightly faster startup (<50ms files)
 - No downsides
 
@@ -344,6 +375,7 @@ quickfile = { enabled = true }
 **Reason:** Issue #384 - Large text paste corruption
 
 **Details:**
+
 - Confirmed across multiple terminals (iTerm2, Wezterm, Alacritty)
 - Pasting >100 lines can corrupt text
 - Fixed in PR #424 but edge cases remain
@@ -352,6 +384,7 @@ quickfile = { enabled = true }
 **Can enable later:** After manual testing with your workflow
 
 **How to enable:**
+
 ```lua
 -- In snacks.lua, change:
 scroll = {
@@ -364,6 +397,7 @@ scroll = {
 ```
 
 **Testing required:**
+
 - [ ] Paste large code blocks (>100 lines)
 - [ ] Verify no text corruption
 - [ ] Test in your terminal emulator
@@ -421,16 +455,16 @@ scroll = {
 
 ### Conflict Matrix
 
-| Existing Plugin | Snacks Module | Resolution | Status |
-|----------------|---------------|------------|---------|
-| **gitsigns** | statuscolumn | Coexist (built-in integration) | ✅ Safe |
-| **vim.notify** | notifier | Replace (enhancement) | ✅ Safe |
-| **telescope** | picker (disabled) | Keep telescope | ✅ No conflict |
-| **nvim-tree** | explorer (disabled) | Keep nvim-tree | ✅ No conflict |
-| **registers.nvim** | picker.registers (disabled) | Keep registers.nvim | ✅ No conflict |
-| **lazy.nvim UI** | dashboard | Coexist (workaround applied) | ✅ Safe |
-| **LSP** | words | Complement | ✅ Safe |
-| **which-key** | dashboard | Coexist (auto-integration) | ✅ Safe |
+| Existing Plugin    | Snacks Module               | Resolution                     | Status         |
+| ------------------ | --------------------------- | ------------------------------ | -------------- |
+| **gitsigns**       | statuscolumn                | Coexist (built-in integration) | ✅ Safe        |
+| **vim.notify**     | notifier                    | Replace (enhancement)          | ✅ Safe        |
+| **telescope**      | picker (disabled)           | Keep telescope                 | ✅ No conflict |
+| **nvim-tree**      | explorer (disabled)         | Keep nvim-tree                 | ✅ No conflict |
+| **registers.nvim** | picker.registers (disabled) | Keep registers.nvim            | ✅ No conflict |
+| **lazy.nvim UI**   | dashboard                   | Coexist (workaround applied)   | ✅ Safe        |
+| **LSP**            | words                       | Complement                     | ✅ Safe        |
+| **which-key**      | dashboard                   | Coexist (auto-integration)     | ✅ Safe        |
 
 ---
 
@@ -441,6 +475,7 @@ scroll = {
 **Resolution:** **NO CONFLICT**
 
 **Evidence:**
+
 - snacks.statuscolumn has built-in gitsigns support (Issue #613)
 - Uses pattern matching: `{ "GitSign", "MiniDiffSign" }`
 - LazyVim uses both without issues
@@ -458,6 +493,7 @@ scroll = {
 **Resolution:** **ENHANCES** (no breaking)
 
 **Evidence:**
+
 - snacks.notifier replaces `vim.notify` properly
 - LSP integration via LspProgress autocmd
 - No reported message loss (Issue #613 research)
@@ -489,11 +525,13 @@ scroll = {
 **Resolution:** **NO CONFLICTS**
 
 **Analysis:**
+
 - `<leader>s` prefix unused in current config
 - `<leader>e` still points to nvim-tree (unchanged)
 - All telescope bindings preserved (`<leader>f*`)
 
 **New Bindings (conflict-free):**
+
 - `<leader>sn` - Notification history
 - `<leader>snd` - Dismiss notifications
 - `<leader>sd` - Dashboard
@@ -509,18 +547,19 @@ scroll = {
 
 ### New Keybindings (snacks.nvim)
 
-| Key | Function | Description | Mode |
-|-----|----------|-------------|------|
-| `<leader>sn` | Show notification history | View all past notifications | n |
-| `<leader>snd` | Dismiss all notifications | Clear notification stack | n |
-| `<leader>sd` | Open dashboard | Launch start screen | n |
-| `<leader>gB` | Git browse | Open file in browser (GitHub/GitLab) | n, x |
-| `<leader>ss` | Toggle scratch buffer | Temporary notes | n |
-| `<leader>sS` | Select scratch buffer | Choose from scratch buffers | n |
+| Key           | Function                  | Description                          | Mode |
+| ------------- | ------------------------- | ------------------------------------ | ---- |
+| `<leader>sn`  | Show notification history | View all past notifications          | n    |
+| `<leader>snd` | Dismiss all notifications | Clear notification stack             | n    |
+| `<leader>sd`  | Open dashboard            | Launch start screen                  | n    |
+| `<leader>gB`  | Git browse                | Open file in browser (GitHub/GitLab) | n, x |
+| `<leader>ss`  | Toggle scratch buffer     | Temporary notes                      | n    |
+| `<leader>sS`  | Select scratch buffer     | Choose from scratch buffers          | n    |
 
 ### Preserved Keybindings (Unchanged)
 
 #### File Navigation (telescope)
+
 - `<leader>ff` - Find files
 - `<leader>fg` - Live grep
 - `<leader>fb` - Find buffers
@@ -528,9 +567,11 @@ scroll = {
 - `<leader>fr` - Registers
 
 #### File Explorer (nvim-tree)
+
 - `<leader>e` - Toggle file tree
 
 #### LSP (existing)
+
 - `gd` - Go to definition
 - `gD` - Go to declaration
 - `gi` - Go to implementation
@@ -541,12 +582,14 @@ scroll = {
 - `<leader>f` - Format
 
 #### Diagnostics (existing)
+
 - `[d` - Previous diagnostic
 - `]d` - Next diagnostic
 - `<leader>e` - Open diagnostic float (general config)
 - `<leader>q` - Diagnostic list
 
 #### Buffer/Window (existing)
+
 - `<Tab>` - Next buffer
 - `<S-Tab>` - Previous buffer
 - `<leader>bd` - Delete buffer
@@ -563,6 +606,7 @@ scroll = {
 ### Key Configuration Sections
 
 #### 1. Priority and Loading
+
 ```lua
 return {
   "folke/snacks.nvim",
@@ -573,6 +617,7 @@ return {
 ```
 
 #### 2. Module Enable/Disable
+
 ```lua
 opts = {
   bigfile = { enabled = true },
@@ -592,6 +637,7 @@ opts = {
 ```
 
 #### 3. Keybinding Registration
+
 ```lua
 keys = {
   { "<leader>sn", function() Snacks.notifier.show_history() end, desc = "Notification History" },
@@ -602,6 +648,7 @@ keys = {
 ### Customization Examples
 
 #### Adjust notification timeout:
+
 ```lua
 notifier = {
   enabled = true,
@@ -610,6 +657,7 @@ notifier = {
 ```
 
 #### Change indent character:
+
 ```lua
 indent = {
   enabled = true,
@@ -618,6 +666,7 @@ indent = {
 ```
 
 #### Adjust bigfile threshold:
+
 ```lua
 bigfile = {
   enabled = true,
@@ -626,6 +675,7 @@ bigfile = {
 ```
 
 #### Exclude indent for specific filetypes:
+
 ```lua
 indent = {
   enabled = true,
@@ -644,6 +694,7 @@ indent = {
 ### For Users Updating This Configuration
 
 #### What Changed
+
 1. **New file:** `nvim/lua/plugins/snacks.lua` (280 lines)
 2. **Modified:** `nvim/lua/plugins/init.lua` (added one import line)
 3. **Unchanged:** All other files (lsp.lua, completion.lua, ui.lua, etc.)
@@ -651,15 +702,19 @@ indent = {
 #### Installation Steps
 
 1. **Sync lazy.nvim:**
+
    ```vim
    :Lazy sync
    ```
+
    This will install snacks.nvim and its dependencies.
 
 2. **Verify health:**
+
    ```vim
    :checkhealth snacks
    ```
+
    Should show all enabled modules as ✅
 
 3. **Restart Neovim:**
@@ -675,11 +730,13 @@ indent = {
 **To disable snacks entirely:**
 
 1. **Option A:** Comment out import in init.lua:
+
    ```lua
    -- { import = "plugins.snacks" },
    ```
 
 2. **Option B:** Disable in snacks.lua:
+
    ```lua
    return {
      "folke/snacks.nvim",
@@ -694,6 +751,7 @@ indent = {
    Then remove import from init.lua and run `:Lazy clean`
 
 **To disable specific module:**
+
 ```lua
 -- In snacks.lua, find the module and set enabled = false:
 notifier = { enabled = false },
@@ -702,6 +760,7 @@ notifier = { enabled = false },
 #### Expected Behavior Changes
 
 **Visible Changes:**
+
 - Dashboard appears on Neovim startup (empty file)
 - Notifications look different (prettier, persistent)
 - Indent guides visible in code files
@@ -709,11 +768,13 @@ notifier = { enabled = false },
 - Word under cursor highlights all occurrences
 
 **Performance Changes:**
+
 - Startup: +10ms (negligible)
 - Large files: Much faster (bigfile optimization)
 - Small files: Slightly faster (quickfile optimization)
 
 **No Changes:**
+
 - All existing keybindings work identically
 - telescope, nvim-tree, LSP unchanged
 - Plugin count: +1 (snacks.nvim)
@@ -727,6 +788,7 @@ notifier = { enabled = false },
 **Symptoms:** Neovim starts with blank buffer, no dashboard
 
 **Solutions:**
+
 1. Manually open: `:lua Snacks.dashboard()`
 2. Check health: `:checkhealth snacks`
 3. Verify lazy.nvim loaded snacks: `:Lazy`
@@ -741,15 +803,18 @@ notifier = { enabled = false },
 **Symptoms:** LSP errors silent, no notification popups
 
 **Solutions:**
+
 1. Check notifier enabled: `:lua vim.print(require('snacks').config.notifier.enabled)`
 2. Check notification history: `<leader>sn`
 3. Verify vim.notify override: `:lua vim.notify("test", vim.log.levels.INFO)`
 4. Restart LSP: `:LspRestart`
 
 **Debug:** Check if vim.notify is overridden:
+
 ```vim
 :lua vim.print(vim.notify)
 ```
+
 Should show snacks function, not default.
 
 ---
@@ -759,6 +824,7 @@ Should show snacks function, not default.
 **Symptoms:** statuscolumn visible but no git signs
 
 **Solutions:**
+
 1. Verify gitsigns running: `:Gitsigns toggle_signs`
 2. Check git repo: `:!git status`
 3. Verify statuscolumn config includes git:
@@ -776,6 +842,7 @@ Should show snacks function, not default.
 **Symptoms:** No vertical lines in code files
 
 **Solutions:**
+
 1. Check filetype not excluded:
    ```vim
    :lua vim.print(vim.bo.filetype)
@@ -798,6 +865,7 @@ Should show snacks function, not default.
 **Solution:** **KEEP SCROLL DISABLED** (already disabled in config)
 
 **If you enabled scroll:**
+
 1. Immediately set `scroll = { enabled = false }`
 2. Restart Neovim
 3. Do not enable scroll until Issue #384 fully resolved
@@ -821,6 +889,7 @@ Should show snacks function, not default.
 **Symptoms:** Neovim startup noticeably slower (>50ms)
 
 **Solutions:**
+
 1. Profile startup:
    ```vim
    :Lazy profile
@@ -838,6 +907,7 @@ Should show snacks function, not default.
 **Symptoms:** Cursor flickers during LSP operations (rare)
 
 **Solution:**
+
 1. Adjust notifier debounce:
    ```lua
    notifier = {
@@ -863,26 +933,31 @@ Should show snacks function, not default.
 ### General Debugging
 
 **Check snacks health:**
+
 ```vim
 :checkhealth snacks
 ```
 
 **View loaded modules:**
+
 ```vim
 :lua vim.print(require('snacks').config)
 ```
 
 **Check for errors:**
+
 ```vim
 :messages
 ```
 
 **View notification history:**
+
 ```vim
 <leader>sn
 ```
 
 **Reload snacks:**
+
 ```vim
 :lua package.loaded['snacks'] = nil
 :lua require('snacks').setup()
@@ -929,7 +1004,7 @@ Should show snacks function, not default.
 
 - [ ] **statuscolumn**
   - [ ] Line numbers visible
-  - [ ] Git signs appear (if in repo): +, ~, _
+  - [ ] Git signs appear (if in repo): +, ~, \_
   - [ ] Diagnostic signs visible (errors, warnings)
   - [ ] Fold markers work (`zf` to create fold)
 
@@ -1114,11 +1189,13 @@ Should show snacks function, not default.
 ### Version Updates
 
 **To update snacks.nvim:**
+
 ```vim
 :Lazy update snacks.nvim
 ```
 
 **Check for breaking changes:**
+
 - Review [snacks.nvim releases](https://github.com/folke/snacks.nvim/releases)
 - Check `:checkhealth snacks` after update
 - Test all enabled modules

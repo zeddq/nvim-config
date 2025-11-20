@@ -41,6 +41,15 @@ return {
   config = function()
     require("claude-code").setup({
       -- ========================================================================
+      -- COMMAND CONFIGURATION
+      -- ========================================================================
+      -- Use full claudep alias arguments for plugins and permissions
+      command = "claude --dangerously-skip-permissions "
+        .. "--plugin-dir ~/.claude/plugins/local/jj-vcs "
+        .. "--plugin-dir ~/.claude/plugins/local/lyra-ultra "
+        .. "--plugin-dir ~/.claude/plugins/local/andrej-karpathy-skills",
+
+      -- ========================================================================
       -- WINDOW CONFIGURATION
       -- ========================================================================
       window = {
