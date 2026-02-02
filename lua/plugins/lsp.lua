@@ -216,7 +216,7 @@ return {
       -- Mason-lspconfig simplified (Neovim 0.11+ pattern)
       -- No handlers block, no automatic_installation
       require("mason-lspconfig").setup({
-        ensure_installed = { "basedpyright", "ruff", "pylsp", "lua_ls", "bashls" },
+        ensure_installed = { "basedpyright", "ruff", "pylsp", "lua_ls", "bashls", "jdtls" },
       })
 
       -- Configure each server with vim.lsp.config (Neovim 0.11+ API)
@@ -317,6 +317,63 @@ return {
         },
       }
 
+      -- jdtls (Java) configuration
+      local java_home = "/Users/cezary/Library/Java/JavaVirtualMachines/jbr-21.0.10/Contents/Home"
+      local jdtls_workspace = vim.fn.stdpath("cache") .. "/jdtls/workspace/"
+
+      vim.lsp.config["jdtls"] = {
+        capabilities = capabilities,
+        cmd = {
+          "jdtls",
+          "-data",
+          jdtls_workspace .. vim.fn.fnamemodify(vim.fn.getcwd(), ":p:h:t"),
+        },
+        cmd_env = {
+          JAVA_HOME = java_home,
+        },
+        settings = {
+          java = {
+            home = java_home,
+            configuration = {
+              runtimes = {
+                {
+                  name = "JavaSE-21",
+                  path = java_home,
+                  default = true,
+                },
+              },
+            },
+            eclipse = { downloadSources = true },
+            maven = { downloadSources = true },
+            signatureHelp = { enabled = true },
+            contentProvider = { preferred = "fernflower" },
+            completion = {
+              favoriteStaticMembers = {
+                "org.junit.Assert.*",
+                "org.junit.Assume.*",
+                "org.junit.jupiter.api.Assertions.*",
+                "org.mockito.Mockito.*",
+                "org.mockito.ArgumentMatchers.*",
+              },
+            },
+            sources = {
+              organizeImports = {
+                starThreshold = 9999,
+                staticStarThreshold = 9999,
+              },
+            },
+          },
+        },
+        root_markers = {
+          "pom.xml",
+          "build.gradle",
+          "build.gradle.kts",
+          "settings.gradle",
+          "settings.gradle.kts",
+          ".git",
+        },
+      }
+
       -- bashls configuration
       vim.lsp.config["bashls"] = {
         capabilities = capabilities,
@@ -341,6 +398,7 @@ return {
       vim.lsp.enable("pylsp")
       vim.lsp.enable("lua_ls")
       vim.lsp.enable("bashls")
+      vim.lsp.enable("jdtls")
 
       -- Configure diagnostics (Neovim 0.11+ API with inline sign text)
       vim.diagnostic.config({
