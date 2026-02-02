@@ -5,12 +5,14 @@ Comprehensive automated tests for verifying jj.nvim integration functionality.
 ## Quick Start
 
 Run all tests:
+
 ```bash
 cd /Users/cezary/.config/nvim/tests
 ./run_all_tests.sh
 ```
 
 Run individual test:
+
 ```bash
 ./run_single_test.sh test_vcs_detection.lua
 ```
@@ -22,6 +24,7 @@ Run individual test:
 Tests the `utils.vcs` module for correct VCS type detection.
 
 **What it tests:**
+
 - VCS type detection (jj, git, none)
 - Cache functionality (hit/miss, TTL, invalidation)
 - Repository root finding
@@ -29,6 +32,7 @@ Tests the `utils.vcs` module for correct VCS type detection.
 - Error handling for invalid paths
 
 **Run:**
+
 ```bash
 nvim --headless --noplugin -u ../init.lua -l test_vcs_detection.lua
 ```
@@ -42,6 +46,7 @@ nvim --headless --noplugin -u ../init.lua -l test_vcs_detection.lua
 Tests that jj.nvim and related plugins load correctly.
 
 **What it tests:**
+
 - Module loading (`jj`, `jj.cmd`, `jj.utils`)
 - Command registration (`:J`, `:JJStatus`, etc.)
 - Lazy.nvim integration
@@ -49,6 +54,7 @@ Tests that jj.nvim and related plugins load correctly.
 - jj CLI availability
 
 **Run:**
+
 ```bash
 nvim --headless -u ../init.lua -l test_plugin_loading.lua
 ```
@@ -62,6 +68,7 @@ nvim --headless -u ../init.lua -l test_plugin_loading.lua
 Tests that commands execute correctly.
 
 **What it tests:**
+
 - Command callability
 - Direct jj CLI execution
 - VCS command routing
@@ -69,6 +76,7 @@ Tests that commands execute correctly.
 - Helper function availability
 
 **Run:**
+
 ```bash
 nvim --headless -u ../init.lua -l test_commands.lua
 ```
@@ -82,6 +90,7 @@ nvim --headless -u ../init.lua -l test_commands.lua
 Tests end-to-end integration between components.
 
 **What it tests:**
+
 - VCS detection ↔ jj.nvim integration
 - Command routing based on VCS type
 - Cache management and autocmds
@@ -90,6 +99,7 @@ Tests end-to-end integration between components.
 - Overall health check
 
 **Run:**
+
 ```bash
 nvim --headless -u ../init.lua -l test_integration.lua
 ```
@@ -103,6 +113,7 @@ nvim --headless -u ../init.lua -l test_integration.lua
 See `TEST_REPORT.md` for comprehensive test results and analysis.
 
 **Latest Results:**
+
 - Total Tests: 38 automated
 - Passed: 38 (100%)
 - Failed: 0
@@ -115,18 +126,21 @@ See `TEST_REPORT.md` for comprehensive test results and analysis.
 Some tests require interactive Neovim session. Complete these manually:
 
 ### Commands
+
 - [ ] `:J status` - Status appears in buffer
 - [ ] `:JJStatus` - Same as `:J status`
 - [ ] `:J log` - Log appears with graph
 - [ ] `:J describe` - Editor opens for description
 
 ### Keymaps
+
 - [ ] `<leader>gs` - Status appears
 - [ ] `<leader>gl` - Log appears
 - [ ] `<leader>gd` - Diff appears
 - [ ] `<leader>gn` - Creates new change
 
 ### Utilities
+
 - [ ] `<leader>gR` - Shows "Cache cleared" notification
 - [ ] `<leader>g?` - Shows VCS info notification
 
@@ -135,12 +149,14 @@ Some tests require interactive Neovim session. Complete these manually:
 ## Test Environment
 
 **Requirements:**
+
 - Neovim 0.9+
 - jj CLI installed (`jj --version`)
 - Full nvim config loaded
 - In a jj repository (for jj-specific tests)
 
 **Test Directory Structure:**
+
 ```
 tests/
 ├── README.md                 # This file
@@ -164,6 +180,7 @@ Some tests (especially keymaps) may fail in headless mode. This is expected beha
 ### "jj CLI not found" warning
 
 Install jj CLI:
+
 ```bash
 brew install jj  # macOS
 ```
@@ -171,6 +188,7 @@ brew install jj  # macOS
 ### "Not in jj repo" warnings
 
 Some tests require being in a jj repository. Navigate to a jj repo:
+
 ```bash
 cd /path/to/jj/repo
 nvim --headless -u /Users/cezary/.config/nvim/init.lua -l test_commands.lua
@@ -179,6 +197,7 @@ nvim --headless -u /Users/cezary/.config/nvim/init.lua -l test_commands.lua
 ### Module loading failures
 
 Ensure lazy.nvim has installed all plugins:
+
 ```bash
 nvim +Lazy sync +qall
 ```
