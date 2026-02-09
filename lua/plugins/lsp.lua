@@ -216,7 +216,7 @@ return {
       -- Mason-lspconfig simplified (Neovim 0.11+ pattern)
       -- No handlers block, no automatic_installation
       require("mason-lspconfig").setup({
-        ensure_installed = { "basedpyright", "ruff", "pylsp", "lua_ls", "bashls", "jdtls" },
+        ensure_installed = { "basedpyright", "ruff", "pylsp", "lua_ls", "bashls", "jdtls", "taplo" },
       })
 
       -- Configure each server with vim.lsp.config (Neovim 0.11+ API)
@@ -392,6 +392,20 @@ return {
         },
       }
 
+      -- taplo (TOML) configuration
+      vim.lsp.config["taplo"] = {
+        capabilities = capabilities,
+        settings = {
+          evenBetterToml = {
+            schema = {
+              associations = {
+                [".*/\\.config/jj/config\\.toml"] = "https://jj-vcs.github.io/jj/latest/config-schema.json",
+              },
+            },
+          },
+        },
+      }
+
       -- Enable all configured servers (Neovim 0.11+ API)
       vim.lsp.enable("basedpyright")
       vim.lsp.enable("ruff")
@@ -399,6 +413,7 @@ return {
       vim.lsp.enable("lua_ls")
       vim.lsp.enable("bashls")
       vim.lsp.enable("jdtls")
+      vim.lsp.enable("taplo")
 
       -- Configure diagnostics (Neovim 0.11+ API with inline sign text)
       vim.diagnostic.config({
