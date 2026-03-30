@@ -91,14 +91,15 @@ This configuration targets Neovim 0.11+. Use current APIs:
 
 ## Testing
 
-Tests run in headless Neovim with the full configuration loaded:
+Tests use a two-tier model: **unit tests** (mocked, `--noplugin`, fast) and **integration tests** (real plugins, slower).
 
 ```bash
-./tests/run_all_tests.sh           # All suites
-./tests/run_single_test.sh <file>  # Single suite
+./tests/run_all_tests.sh                # Unit tests (default)
+./tests/run_all_tests.sh --integration  # Unit + integration tests
+./tests/run_single_test.sh <file>       # Single suite
 ```
 
-Test files live in `tests/` and use a custom assertion framework (no external test library). See `tests/README.md` for details.
+Unit tests mock external plugin APIs (e.g., `jj.nvim`) via `tests/mocks/`. Integration tests (e.g., `test_jj_integration.lua`) require real plugins loaded by lazy.nvim. Test files live in `tests/` and use a custom assertion framework (no external test library). See `tests/README.md` for details.
 
 ## File Reference
 

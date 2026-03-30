@@ -6,7 +6,7 @@ Modern Neovim 0.11+ configuration featuring LSP-based development, autocompletio
 
 ## Directory Structure
 
-```
+```text
 init.lua                 # Entry point — loads config modules then plugins
 lua/
   config/
@@ -69,17 +69,23 @@ docs/                    # Extended documentation (JJ_INTEGRATION, SNACKS)
 
 ## Test Execution
 
+Tests use a **two-tier model**: unit tests (fast, mocked) and integration tests (require real plugins).
+
 ```bash
-# Run all test suites (3 suites, headless Neovim)
+# Run unit tests (default — uses mocks, runs with --noplugin)
 ./tests/run_all_tests.sh
+
+# Run unit + integration tests (loads real plugins via lazy.nvim)
+./tests/run_all_tests.sh --integration
 
 # Run a single test file
 ./tests/run_single_test.sh tests/<test_file>.lua
 ```
 
-Tests run via `nvim --headless --noplugin -u init.lua -l <test_file>`. Results saved to `tests/test_results.txt`.
+Unit tests run via `nvim --headless --noplugin -u init.lua -l <test_file>`. Integration tests (e.g., `test_jj_integration.lua`) run without `--noplugin` so lazy.nvim can initialize plugins. Results saved to `tests/test_results.txt`.
 
-Test suites: `test_vcs_detection.lua`, `test_plugin_loading.lua`, `test_commands.lua`, `test_integration.lua`.
+Unit suites: `test_vcs_detection.lua`, `test_plugin_loading.lua`, `test_commands.lua`.
+Integration suite: `test_jj_integration.lua` (real jj.nvim plugin required).
 
 ## Common Development Tasks
 

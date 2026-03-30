@@ -24,6 +24,10 @@ end
 function M.install()
   M.reset()
 
+  -- Clear any previously cached modules so require() hits preload
+  package.loaded["jj"] = nil
+  package.loaded["jj.cmd"] = nil
+
   -- Mock jj.cmd module
   local mock_cmd = {
     config = {
