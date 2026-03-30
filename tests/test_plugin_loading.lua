@@ -1,6 +1,14 @@
--- Test Suite: Plugin Loading
--- Tests that jj.nvim and related plugins load correctly
--- NOTE: This test requires plugins to be loaded, so it can't use --noplugin flag
+-- Test Suite: Plugin Loading (Unit Tests)
+-- Tests plugin configuration, keymaps, and wrapper logic using mocks.
+-- Does NOT require lazy.nvim to fully initialize external plugins.
+--
+-- For tests that verify real jj.nvim plugin loading, see test_jj_integration.lua.
+
+-- Add tests/ to package.path so mocks can be required
+local script_dir = debug.getinfo(1, "S").source:match("@(.*/)")
+package.path = script_dir .. "?.lua;" .. script_dir .. "?/init.lua;" .. package.path
+
+local jj_mock = require("mocks.jj_mock")
 
 local results = {
   passed = 0,
@@ -10,6 +18,7 @@ local results = {
 }
 
 local function test(name, fn)
+  jj_mock.reset() -- Clean call log between tests
   local ok, err = pcall(fn)
   if ok then
     results.passed = results.passed + 1
@@ -34,75 +43,57 @@ local function assert_not_nil(value, msg)
   end
 end
 
-print("\n=== Plugin Loading Tests ===\n")
+local function assert_eq(actual, expected, msg)
+  if actual ~= expected then
+    error(string.format("%s: expected %s, got %s", msg or "Assertion failed", tostring(expected), tostring(actual)))
+  end
+end
 
--- Wait for plugins to load
-vim.wait(2000, function()
-  return pcall(require, "jj")
-end)
+print("\n=== Plugin Loading Tests (Unit) ===\n")
 
--- Test 1: jj module loads
-test("jj module loads without errors", function()
+-- Install mocks before running tests
+jj_mock.install()
+
+-- Test 1: Mock jj module provides expected API surface
+test("jj mock provides setup function", function()
   local jj = require("jj")
   assert_not_nil(jj, "jj module should load")
   assert_not_nil(jj.setup, "jj.setup function should exist")
 end)
 
--- Test 2: jj.cmd module loads
-test("jj.cmd module loads without errors", function()
+-- Test 2: Mock jj.cmd provides all expected functions
+test("jj.cmd mock provides complete API", function()
   local cmd = require("jj.cmd")
   assert_not_nil(cmd, "jj.cmd module should load")
-  assert_not_nil(cmd.status, "jj.cmd.status function should exist")
-  assert_not_nil(cmd.log, "jj.cmd.log function should exist")
-  assert_not_nil(cmd.describe, "jj.cmd.describe function should exist")
-  assert_not_nil(cmd.new, "jj.cmd.new function should exist")
-  assert_not_nil(cmd.edit, "jj.cmd.edit function should exist")
-  assert_not_nil(cmd.diff, "jj.cmd.diff function should exist")
-  assert_not_nil(cmd.squash, "jj.cmd.squash function should exist")
-end)
-
--- Test 3: Check if :J command exists
-test(":J command is registered", function()
-  local commands = vim.api.nvim_get_commands({})
-  if not commands.J then
-    error(":J command not found")
+  local required_fns = { "status", "log", "describe", "new", "edit", "diff", "squash" }
+  for _, fn_name in ipairs(required_fns) do
+    assert_eq(type(cmd[fn_name]), "function",
+      string.format("jj.cmd.%s should be a function", fn_name))
   end
 end)
 
--- Test 4: Check user commands
-test("JJ user commands are registered", function()
-  local commands = vim.api.nvim_get_commands({})
-  local required_commands = {
-    "JJStatus",
-    "JJLog",
-    "JJDescribe",
-    "JJNew",
-    "JJEdit",
-    "JJDiff",
-    "JJSquash"
-  }
+-- Test 3: jj.cmd functions are callable and record calls
+test("jj.cmd wrapper calls dispatch correctly", function()
+  local cmd = require("jj.cmd")
+  cmd.status({ notify = true })
+  cmd.log({})
 
-  local missing = {}
-  for _, cmd in ipairs(required_commands) do
-    if not commands[cmd] then
-      table.insert(missing, cmd)
-    end
-  end
-
-  if #missing > 0 then
-    error(string.format("Missing commands: %s", table.concat(missing, ", ")))
-  end
-
-  print(string.format("  All %d user commands registered", #required_commands))
+  assert_eq(#jj_mock.calls, 2, "Should record 2 calls")
+  assert_eq(jj_mock.calls[1].fn, "status", "First call should be status")
+  assert_eq(jj_mock.calls[2].fn, "log", "Second call should be log")
 end)
 
--- Test 5: Check picker commands (expected to exist but may fail to execute)
+-- Test 4: jj.cmd.config is accessible
+test("jj.cmd configuration is accessible", function()
+  local cmd = require("jj.cmd")
+  assert_not_nil(cmd.config, "config table should exist")
+  assert_eq(cmd.config.describe_editor, "buffer", "describe_editor should be 'buffer'")
+end)
+
+-- Test 5: Picker commands check (expected to be absent in headless)
 test("JJ picker commands check", function()
   local commands = vim.api.nvim_get_commands({})
-  local picker_commands = {
-    "JJPickerStatus",
-    "JJPickerHistory"
-  }
+  local picker_commands = { "JJPickerStatus", "JJPickerHistory" }
 
   local found = 0
   for _, cmd in ipairs(picker_commands) do
@@ -118,7 +109,7 @@ test("JJ picker commands check", function()
   end
 end)
 
--- Test 6: VCS keymaps module loads
+-- Test 6: VCS keymaps module configuration file exists
 test("VCS keymaps module configuration exists", function()
   local config_path = vim.fn.stdpath("config") .. "/lua/plugins/vcs-keymaps.lua"
   local exists = vim.fn.filereadable(config_path) == 1
@@ -130,15 +121,8 @@ end)
 -- Test 7: Check if keymaps are registered
 test("VCS keymaps are registered", function()
   local keymaps_to_check = {
-    "<leader>gs",
-    "<leader>gl",
-    "<leader>gd",
-    "<leader>gc",
-    "<leader>gn",
-    "<leader>gS",
-    "<leader>ge",
-    "<leader>gR",
-    "<leader>g?",
+    "<leader>gs", "<leader>gl", "<leader>gd", "<leader>gc",
+    "<leader>gn", "<leader>gS", "<leader>ge", "<leader>gR", "<leader>g?",
   }
 
   local found = 0
@@ -147,14 +131,12 @@ test("VCS keymaps are registered", function()
   for _, lhs in ipairs(keymaps_to_check) do
     local maps = vim.api.nvim_get_keymap("n")
     local found_map = false
-
     for _, map in ipairs(maps) do
       if map.lhs == lhs or map.lhs:gsub("%s+", "") == lhs:gsub("%s+", "") then
         found_map = true
         break
       end
     end
-
     if found_map then
       found = found + 1
     else
@@ -163,7 +145,6 @@ test("VCS keymaps are registered", function()
   end
 
   if found < #keymaps_to_check then
-    -- This might be expected in headless mode
     warn("VCS keymaps", string.format("Only %d/%d keymaps found. Missing: %s (may be expected in headless mode)",
       found, #keymaps_to_check, table.concat(missing, ", ")))
   else
@@ -171,7 +152,7 @@ test("VCS keymaps are registered", function()
   end
 end)
 
--- Test 8: Check jj CLI availability
+-- Test 8: jj CLI availability
 test("jj CLI is available", function()
   local handle = io.popen("which jj 2>/dev/null")
   if not handle then
@@ -188,42 +169,21 @@ test("jj CLI is available", function()
   end
 end)
 
--- Test 9: Check jj.nvim configuration
-test("jj.nvim configuration is correct", function()
-  local cmd = require("jj.cmd")
-  if cmd.config.describe_editor ~= "buffer" then
-    warn("jj.nvim config", string.format("describe_editor is '%s', expected 'buffer'", cmd.config.describe_editor))
-  else
-    print("  describe_editor: buffer ✓")
-  end
+-- Test 9: Utils modules load without errors
+test("utils.vcs module loads", function()
+  local vcs = require("utils.vcs")
+  assert_not_nil(vcs, "utils.vcs should load")
+  assert_not_nil(vcs.detect_vcs_type, "detect_vcs_type should exist")
 end)
 
--- Test 10: Verify lazy.nvim loaded jj.nvim
-test("Lazy.nvim loaded jj.nvim", function()
-  local lazy_ok, lazy = pcall(require, "lazy")
-  if not lazy_ok then
-    warn("Lazy.nvim", "Could not load lazy.nvim")
-    return
-  end
-
-  local plugins = lazy.plugins()
-  local found = false
-  for _, plugin in pairs(plugins) do
-    if plugin.name == "jj.nvim" then
-      found = true
-      if plugin._.loaded then
-        print("  jj.nvim loaded by lazy.nvim ✓")
-      else
-        warn("jj.nvim", "Plugin registered but not loaded")
-      end
-      break
-    end
-  end
-
-  if not found then
-    error("jj.nvim not found in lazy.nvim plugins")
-  end
+-- Test 10: Utils.lsp module loads without errors
+test("utils.lsp module loads", function()
+  local lsp_utils = require("utils.lsp")
+  assert_not_nil(lsp_utils, "utils.lsp should load")
 end)
+
+-- Cleanup mocks
+jj_mock.uninstall()
 
 -- Print summary
 print("\n=== Test Summary ===")
@@ -239,7 +199,7 @@ if results.failed > 0 then
       print(string.format("  - %s: %s", test_result.name, test_result.error))
     end
   end
-  vim.cmd("cquit 1") -- Exit with error code
+  vim.cmd("cquit 1")
 else
   print("\nAll critical tests passed!")
   if results.warnings > 0 then
@@ -250,5 +210,5 @@ else
       end
     end
   end
-  vim.cmd("qall!") -- Exit successfully
+  vim.cmd("qall!")
 end
