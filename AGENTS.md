@@ -83,7 +83,7 @@ The defining architectural feature is dual Git/Jujutsu support:
 This configuration targets Neovim 0.11+. Use current APIs:
 
 | Use (preferred) | Instead of (deprecated/legacy) |
-|-----|------------------------|
+| --- | --- |
 | `vim.hl.on_yank()` | `vim.highlight.on_yank()` (alias, both work) |
 | `vim.diagnostic.jump()` | `vim.diagnostic.goto_next()` (deprecated) |
 | `vim.uv` | `vim.loop` (deprecated) |
@@ -104,7 +104,7 @@ Unit tests mock external plugin APIs (e.g., `jj.nvim`) via `tests/mocks/`. Integ
 ## File Reference
 
 | Path | Purpose |
-|------|---------|
+| --- | --- |
 | `init.lua` | Entry point — loads config then plugins |
 | `lua/config/options.lua` | Editor settings (numbers, search, indent) |
 | `lua/config/keymaps.lua` | Global keybindings |
