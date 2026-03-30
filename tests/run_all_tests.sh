@@ -5,7 +5,7 @@
 # Unit tests:    Use mocks, run with --noplugin (fast, no external deps)
 # Integration:   Require real plugins loaded by lazy.nvim (slower, run without --noplugin)
 
-set -e
+set -eo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_DIR="$(dirname "$SCRIPT_DIR")"

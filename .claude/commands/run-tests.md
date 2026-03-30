@@ -9,6 +9,6 @@ Run the Neovim configuration test suite:
 
 To also run integration tests (require real plugins loaded by lazy.nvim):
 
-```
+```bash
 ./tests/run_all_tests.sh --integration
 ```
