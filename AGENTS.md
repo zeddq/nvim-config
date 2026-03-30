@@ -1,0 +1,117 @@
+# AI Agent Guidelines — Neovim Configuration
+
+This file provides codebase context for AI coding assistants (GitHub Copilot, Cursor, Windsurf, Claude, and others). Follow these conventions when generating or modifying code in this repository.
+
+## Project Summary
+
+A Neovim 0.11+ configuration with:
+- **LSP-based development** via Mason + native `vim.lsp` APIs
+- **Autocompletion** via nvim-cmp
+- **Dual VCS support** — Git and Jujutsu with automatic detection
+- **Plugin management** via [lazy.nvim](https://github.com/folke/lazy.nvim)
+- **Leader key**: `<Space>` (global), `\` (local)
+
+## Codebase Conventions
+
+### Lua Module Patterns
+
+All modules use Neovim's `require()` system with dot-separated paths rooted at `lua/`:
+
+```lua
+-- File: lua/utils/vcs.lua → require("utils.vcs")
+-- File: lua/config/keymaps.lua → require("config.keymaps")
+-- File: lua/plugins/lsp.lua → imported via lazy.nvim (see below)
+```
+
+### Plugin Spec Pattern
+
+Every file in `lua/plugins/` **must return a table** (or list of tables) conforming to the [lazy.nvim plugin spec](https://lazy.folke.io/spec). This is the most critical convention in the codebase.
+
+```lua
+-- lua/plugins/example.lua
+return {
+  "author/plugin-name",
+  dependencies = { "dependency/plugin" },
+  event = "VeryLazy",  -- or "BufReadPre", etc.
+  config = function()
+    require("plugin-name").setup({
+      -- configuration here
+    })
+  end,
+}
+```
+
+Plugins are imported in `lua/plugins/init.lua` via `{ import = "plugins.<name>" }`. **Import order matters** — dependencies must be listed before dependents.
+
+### Config Module Pattern
+
+Core configuration in `lua/config/` is loaded directly by `init.lua`:
+
+```lua
+-- init.lua load order:
+require("config.options")   -- Editor settings
+require("config.keymaps")   -- Global keybindings
+require("config.autocmds")  -- Autocommands
+require("plugins")          -- Plugin management (lazy.nvim)
+```
+
+### Utils Module Pattern
+
+Utility modules in `lua/utils/` export a table `M` with functions:
+
+```lua
+local M = {}
+M.some_function = function() ... end
+return M
+```
+
+Access via `require("utils.vcs")`, `require("utils.lsp")`, etc.
+
+## Architecture: VCS Duality
+
+The defining architectural feature is dual Git/Jujutsu support:
+
+- **Detection**: `lua/utils/vcs.lua` — the single source of truth. Checks `.jj` before `.git` to handle colocated repos. Results cached for 5 seconds.
+- **Keybindings**: `lua/plugins/vcs-keymaps.lua` — same keys dispatch to git or jj based on detected VCS type.
+- **UI integration**: `gitsigns` disabled in jj repos; Neo-tree has jj status support.
+- **Merge resolution**: `lua/utils/jj_merge.lua` provides 3-way merge keymaps for `jj resolve`.
+
+**Important**: Never check for `.git`/`.jj` directories directly. Always use `require("utils.vcs").detect_vcs_type()`.
+
+## Neovim 0.11+ API Usage
+
+This configuration targets Neovim 0.11+. Use current APIs:
+
+| Use | Instead of (deprecated) |
+|-----|------------------------|
+| `vim.hl.on_yank()` | `vim.highlight.on_yank()` |
+| `vim.diagnostic.jump()` | `vim.diagnostic.goto_next()` |
+| `vim.uv` | `vim.loop` |
+| `vim.lsp.*` native | n/a |
+
+## Testing
+
+Tests run in headless Neovim with the full configuration loaded:
+
+```bash
+./tests/run_all_tests.sh           # All suites
+./tests/run_single_test.sh <file>  # Single suite
+```
+
+Test files live in `tests/` and use a custom assertion framework (no external test library). See `tests/README.md` for details.
+
+## File Reference
+
+| Path | Purpose |
+|------|---------|
+| `init.lua` | Entry point — loads config then plugins |
+| `lua/config/options.lua` | Editor settings (numbers, search, indent) |
+| `lua/config/keymaps.lua` | Global keybindings |
+| `lua/config/autocmds.lua` | Autocommands |
+| `lua/plugins/init.lua` | lazy.nvim bootstrap + import order |
+| `lua/plugins/*.lua` | Individual plugin specifications |
+| `lua/utils/vcs.lua` | VCS detection (source of truth) |
+| `lua/utils/jj_merge.lua` | Merge conflict resolution |
+| `lua/utils/lsp.lua` | LSP log management |
+| `tests/` | Headless Neovim test suites |
+| `docs/` | Extended docs (JJ_INTEGRATION, SNACKS) |
