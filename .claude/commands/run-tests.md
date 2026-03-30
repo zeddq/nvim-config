@@ -1,3 +1,5 @@
+# Run Tests
+
 Run the Neovim configuration test suite:
 
 1. Execute `./tests/run_all_tests.sh` from the repository root
