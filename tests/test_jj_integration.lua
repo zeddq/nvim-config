@@ -40,13 +40,11 @@ end
 print("\n=== jj.nvim Integration Tests ===\n")
 
 -- Wait for lazy.nvim to finish loading plugins
-vim.wait(5000, function()
-  local ok = pcall(require, "jj")
-  return ok
+local jj_available = vim.wait(5000, function()
+  return pcall(require, "jj")
 end)
 
 -- Check if jj.nvim loaded — skip all tests if not
-local jj_available = pcall(require, "jj")
 if not jj_available then
   print("⚠ jj.nvim not available (plugins not loaded). Skipping integration tests.")
   print("  Run without --noplugin flag: nvim --headless -u init.lua -l tests/test_jj_integration.lua")
@@ -142,18 +140,13 @@ test("Lazy.nvim loaded jj.nvim", function()
 end)
 
 -- Test 7: Execute jj.cmd.status with real plugin (if in jj repo)
-local vcs = require("utils.vcs")
-local vcs_type = vcs.detect_vcs_type()
+local vcs_ok, vcs = pcall(require, "utils.vcs")
+local vcs_type = vcs_ok and vcs.detect_vcs_type() or "none"
 
 if vcs_type == "jj" then
   test("Execute jj.cmd.status (real plugin, jj repo)", function()
     local cmd = require("jj.cmd")
-    local ok, err = pcall(function()
-      cmd.status({ notify = true })
-    end)
-    if not ok then
-      error(string.format("Command execution failed: %s", err))
-    end
+    cmd.status({ notify = true })
   end)
 else
   skip("Execute jj.cmd.status", "Not in a jj repository")

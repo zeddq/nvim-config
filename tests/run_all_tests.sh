@@ -66,7 +66,8 @@ TOTAL_SUITES=0
 # Function to run a unit test suite (with --noplugin)
 run_unit_test() {
     local test_file="$1"
-    local test_name=$(basename "$test_file" .lua)
+    local test_name
+    test_name=$(basename "$test_file" .lua)
 
     echo -e "${BLUE}Running (unit): $test_name${NC}"
     echo "----------------------------------------"
@@ -88,7 +89,8 @@ run_unit_test() {
 # Function to run an integration test suite (WITHOUT --noplugin)
 run_integration_test() {
     local test_file="$1"
-    local test_name=$(basename "$test_file" .lua)
+    local test_name
+    test_name=$(basename "$test_file" .lua)
 
     echo -e "${YELLOW}Running (integration): $test_name${NC}"
     echo "----------------------------------------"
