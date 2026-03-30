@@ -3,7 +3,6 @@
 local results = {
   passed = 0,
   failed = 0,
-  warnings = 0,
   tests = {},
 }
 
@@ -70,31 +69,57 @@ end)
 
 test("DAP config guards bash adapter setup and keeps expected paths", function()
   local content = read_file("lua/plugins/dap.lua")
-  assert_true(content:match("mason%-registry"), "bash adapter should be gated by mason-registry availability")
+  assert_true(
+    content:match("vim%.fn%.executable%(bash_debug_adapter_bin%)"),
+    "bash adapter should be gated by vim.fn.executable(bash_debug_adapter_bin)"
+  )
   assert_true(content:match("bash%-debug%-adapter"), "bash-debug-adapter references should remain")
+  assert_true(
+    content:match("cwd%s*=%s*function%(%s*%)%s*return%s+vim%.fn%.getcwd%(%s*%)%s*end"),
+    "bash DAP cwd should be resolved at launch time via function"
+  )
   assert_true(content:match("/opt/homebrew/bin/bash"), "Homebrew bash path should be present")
   assert_true(content:match("/bin/bash"), "System bash fallback should be present")
-  assert_true(content:match("configurations%.sh") and content:match("configurations%.zsh"), "sh and zsh configurations should be assigned")
+  assert_true(
+    content:match("configurations%.sh") and content:match("configurations%.bash") and content:match("configurations%.zsh"),
+    "sh, bash, and zsh configurations should be assigned"
+  )
 end)
 
 test("Treesitter config keeps expected language set", function()
   local treesitter_spec = require("plugins.treesitter")[1]
   local captured
+  local registered = {}
+
+  -- Save originals before stubbing
+  local orig_ts_configs = package.loaded["nvim-treesitter.configs"]
+  local orig_register = vim.treesitter.language.register
+
   package.loaded["nvim-treesitter.configs"] = {
     setup = function(opts)
       captured = opts
     end,
   }
+  vim.treesitter.language.register = function(parser, lang)
+    registered[lang] = parser
+  end
 
-  treesitter_spec.config()
+  local ok, err = pcall(treesitter_spec.config)
+
+  -- Restore originals (even on failure)
+  package.loaded["nvim-treesitter.configs"] = orig_ts_configs
+  vim.treesitter.language.register = orig_register
+
+  if not ok then error(err) end
 
   assert_true(type(captured) == "table", "Treesitter config should call setup")
   local ensure = captured.ensure_installed or {}
-  local expected = { "python", "lua", "vim", "vimdoc", "query" }
+  local expected = { "bash", "python", "lua", "vim", "vimdoc", "query" }
   for _, lang in ipairs(expected) do
     assert_true(vim.tbl_contains(ensure, lang), "ensure_installed should include " .. lang)
   end
   assert_eq(captured.auto_install, true, "auto_install should be enabled")
+  assert_eq(registered["zsh"], "bash", "zsh should be registered as bash parser alias")
 end)
 
 test("JJ plugin keeps documented diff keymaps", function()
@@ -103,16 +128,23 @@ test("JJ plugin keeps documented diff keymaps", function()
   assert_true(list_contains(jj_spec.dependencies or {}, "folke/snacks.nvim"), "jj plugin should depend on snacks.nvim")
 
   local content = read_file("lua/plugins/jj.lua")
+  -- Unconditional diff keymaps (always registered via jj.diff module)
   assert_true(content:match("<leader>df"), "diff keymap <leader>df should remain defined")
   assert_true(content:match("<leader>dF"), "diff keymap <leader>dF should remain defined")
+  -- Unconditional cmd.diff keymaps (revision view)
+  assert_true(content:match("<leader>dd"), "diff keymap <leader>dd should remain defined")
+  assert_true(content:match("<leader>dD"), "diff keymap <leader>dD should remain defined")
+  -- Conditional cezdiff keymaps (guarded by cmd.cezdiff nil check)
+  assert_true(content:match("if%s+cmd%.cezdiff%s+then"), "cezdiff keymaps should stay guarded by cmd.cezdiff availability")
+  assert_true(content:match("<leader>dj"), "diff keymap <leader>dj should remain defined (cezdiff, terminal)")
+  assert_true(content:match("<leader>dJ"), "diff keymap <leader>dJ should remain defined (cezdiff current, terminal)")
 end)
 
 -- ── Print summary ─────────────────────────────────────────────────────────────
 print("\n=== Test Summary ===")
 print(string.format("Passed: %d", results.passed))
 print(string.format("Failed: %d", results.failed))
-print(string.format("Warnings: %d", results.warnings))
-print(string.format("Total: %d", results.passed + results.failed + results.warnings))
+print(string.format("Total: %d", results.passed + results.failed))
 
 if results.failed > 0 then
   print("\nFailed tests:")
@@ -124,13 +156,5 @@ if results.failed > 0 then
   vim.cmd("cquit 1")
 else
   print("\nAll critical tests passed!")
-  if results.warnings > 0 then
-    print("\nWarnings (non-critical):")
-    for _, test_result in ipairs(results.tests) do
-      if test_result.status == "WARN" then
-        print(string.format("  - %s: %s", test_result.name, test_result.message))
-      end
-    end
-  end
   vim.cmd("qall!")
 end

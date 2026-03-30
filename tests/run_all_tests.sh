@@ -28,7 +28,7 @@ cat > "$RESULTS_FILE" << EOF
 jj.nvim Integration Test Results
 Generated: $(date)
 Working Directory: $(pwd)
-VCS Type: $(cd "$CONFIG_DIR" && require("utils.vcs").detect_vcs_type() 2>/dev/null || echo "unknown")
+VCS Type: $(cd "$CONFIG_DIR" && if [ -d .jj ]; then echo "jj"; elif git rev-parse --is-inside-work-tree >/dev/null 2>&1; then echo "git"; else echo "unknown"; fi)
 
 EOF
 
