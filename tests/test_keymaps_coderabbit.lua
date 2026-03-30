@@ -3,7 +3,6 @@
 local results = {
   passed = 0,
   failed = 0,
-  warnings = 0,
   tests = {},
 }
 
@@ -59,7 +58,7 @@ end)
 test("<leader>w writes the current buffer", function()
   local map = maparg("<leader>w", "n")
   assert_true(map and map.lhs ~= "", "<leader>w mapping should exist")
-  assert_true(map.rhs:match("w"), "mapping should invoke :w")
+  assert_true(map.rhs:match(":w"), "mapping should invoke :w")
   assert_true(map.desc and map.desc:match("Save"), "mapping should include save description")
 end)
 
@@ -79,12 +78,29 @@ test("<Esc> clears search highlights silently", function()
   assert_true(map.silent == 1 or map.silent == true, "mapping should be silent")
 end)
 
+test("Wrapped-line navigation (j/k) uses expr callbacks", function()
+  local j_map = maparg("j", "n")
+  assert_true(j_map and (j_map.rhs ~= "" or j_map.callback), "j mapping should exist")
+  assert_true(j_map.expr == 1 or j_map.expr == true, "j mapping should be expr")
+  assert_true(j_map.silent == 1 or j_map.silent == true, "j mapping should be silent")
+  assert_true(type(j_map.callback) == "function", "j mapping should use a Lua callback")
+  local j_result = j_map.callback()
+  assert_true(j_result == "gj", "j mapping should return gj with no count")
+
+  local k_map = maparg("k", "n")
+  assert_true(k_map and (k_map.rhs ~= "" or k_map.callback), "k mapping should exist")
+  assert_true(k_map.expr == 1 or k_map.expr == true, "k mapping should be expr")
+  assert_true(k_map.silent == 1 or k_map.silent == true, "k mapping should be silent")
+  assert_true(type(k_map.callback) == "function", "k mapping should use a Lua callback")
+  local k_result = k_map.callback()
+  assert_true(k_result == "gk", "k mapping should return gk with no count")
+end)
+
 -- ── Print summary ─────────────────────────────────────────────────────────────
 print("\n=== Test Summary ===")
 print(string.format("Passed: %d", results.passed))
 print(string.format("Failed: %d", results.failed))
-print(string.format("Warnings: %d", results.warnings))
-print(string.format("Total: %d", results.passed + results.failed + results.warnings))
+print(string.format("Total: %d", results.passed + results.failed))
 
 if results.failed > 0 then
   print("\nFailed tests:")
@@ -96,13 +112,5 @@ if results.failed > 0 then
   vim.cmd("cquit 1")
 else
   print("\nAll tests passed!")
-  if results.warnings > 0 then
-    print("\nWarnings (non-critical):")
-    for _, test_result in ipairs(results.tests) do
-      if test_result.status == "WARN" then
-        print(string.format("  - %s: %s", test_result.name, test_result.message))
-      end
-    end
-  end
   vim.cmd("qall!")
 end

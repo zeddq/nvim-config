@@ -219,34 +219,37 @@ return {
 
       -- Configure Bash/Zsh debugger
       -- Install bash-debug-adapter via Mason: :MasonInstall bash-debug-adapter
-      local mason_registry_ok, mason_registry = pcall(require, "mason-registry")
-      if mason_registry_ok and mason_registry.is_installed("bash-debug-adapter") then
-        local mason_path = vim.fn.stdpath("data") .. "/mason"
-        local bash_debug_adapter_path = mason_path .. "/packages/bash-debug-adapter"
-        local bashdb_js = bash_debug_adapter_path .. "/extension/out/bashDebug.js"
-        local bashdb_lib = bash_debug_adapter_path .. "/extension/bashdb_dir"
+      local mason_path = vim.fn.stdpath("data") .. "/mason"
+      local bash_debug_adapter_path = mason_path .. "/packages/bash-debug-adapter"
+      local bash_debug_adapter_bin = bash_debug_adapter_path .. "/bash-debug-adapter"
+
+      if vim.fn.executable(bash_debug_adapter_bin) == 1 then
+        local bashdb_dir = bash_debug_adapter_path .. "/extension/bashdb_dir"
+        local pathBash = vim.fn.executable("/opt/homebrew/bin/bash") == 1
+            and "/opt/homebrew/bin/bash"
+          or "/bin/bash"
 
         dap.adapters.bashdb = {
           type = "executable",
-          command = bash_debug_adapter_path .. "/bash-debug-adapter",
+          command = bash_debug_adapter_bin,
           name = "bashdb",
         }
 
-        -- Configuration for shell scripts (bash and zsh)
+        -- Configuration for shell scripts
         local bash_config = {
           {
             type = "bashdb",
             request = "launch",
             name = "Launch file",
             showDebugOutput = true,
-            pathBashdb = bash_debug_adapter_path .. "/extension/bashdb_dir/bashdb",
-            pathBashdbLib = bash_debug_adapter_path .. "/extension/bashdb_dir",
+            pathBashdb = bashdb_dir .. "/bashdb",
+            pathBashdbLib = bashdb_dir,
             trace = true,
             file = "${file}",
             program = "${file}",
-            cwd = "${workspaceFolder}",
+            cwd = function() return vim.fn.getcwd() end,
             pathCat = "cat",
-            pathBash = "/opt/homebrew/bin/bash",
+            pathBash = pathBash,
             pathMkfifo = "mkfifo",
             pathPkill = "pkill",
             args = {},
@@ -258,14 +261,14 @@ return {
             request = "launch",
             name = "Launch file with arguments",
             showDebugOutput = true,
-            pathBashdb = bash_debug_adapter_path .. "/extension/bashdb_dir/bashdb",
-            pathBashdbLib = bash_debug_adapter_path .. "/extension/bashdb_dir",
+            pathBashdb = bashdb_dir .. "/bashdb",
+            pathBashdbLib = bashdb_dir,
             trace = true,
             file = "${file}",
             program = "${file}",
-            cwd = "${workspaceFolder}",
+            cwd = function() return vim.fn.getcwd() end,
             pathCat = "cat",
-            pathBash = "/bin/bash",
+            pathBash = pathBash,
             pathMkfifo = "mkfifo",
             pathPkill = "pkill",
             args = function()
@@ -277,11 +280,11 @@ return {
           },
         }
 
-        -- Apply same configuration to both sh and zsh filetypes
         dap.configurations.sh = bash_config
+        dap.configurations.bash = bash_config
+        -- Zsh: bashdb only works with bash-compatible scripts.
+        -- Zsh-specific syntax (setopt, zparseopts, glob qualifiers) will fail.
         dap.configurations.zsh = bash_config
-
-        vim.notify("Bash/Zsh debugger configured successfully", vim.log.levels.INFO)
       else
         vim.notify("bash-debug-adapter not installed. Run :MasonInstall bash-debug-adapter", vim.log.levels.WARN)
       end

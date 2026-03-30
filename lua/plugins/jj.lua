@@ -126,6 +126,21 @@ return {
       diff.open_hsplit()
     end, { desc = "JJ hdiff current buffer" })
 
+    -- cmd.diff (uses jj.diff module with revision view)
+    vim.keymap.set("n", "<leader>dd", cmd.diff, { desc = "JJ diff revision" })
+    vim.keymap.set("n", "<leader>dD", function()
+      cmd.diff({ current = true })
+    end, { desc = "JJ diff current file (buffer)" })
+
+    -- Terminal diff (jj diff in terminal)
+    if cmd.cezdiff then
+      vim.keymap.set("n", "<leader>dj", cmd.cezdiff, { desc = "JJ diff (terminal)" })
+      vim.keymap.set("n", "<leader>dJ", function()
+        cmd.cezdiff({ current = true })
+      end, { desc = "JJ diff current file (terminal)" })
+    end
+
+
     -- Pickers
     local picker = require("jj.picker")
     vim.keymap.set("n", "<leader>gj", function()
