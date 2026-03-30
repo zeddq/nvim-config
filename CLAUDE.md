@@ -54,7 +54,7 @@ docs/                    # Extended documentation (JJ_INTEGRATION, SNACKS)
 ### Neovim 0.11+ APIs
 
 - Uses `vim.lsp.*` native APIs (not deprecated `vim.lsp.buf_*`)
-- Uses `vim.hl.on_yank()` (not deprecated `vim.highlight.on_yank()`)
+- Uses `vim.hl.on_yank()` (preferred over `vim.highlight.on_yank()` alias)
 - Uses `vim.uv` for filesystem and timing operations
 - Uses `vim.diagnostic.jump()` for diagnostic navigation
 

@@ -82,11 +82,11 @@ The defining architectural feature is dual Git/Jujutsu support:
 
 This configuration targets Neovim 0.11+. Use current APIs:
 
-| Use | Instead of (deprecated) |
+| Use (preferred) | Instead of (deprecated/legacy) |
 |-----|------------------------|
-| `vim.hl.on_yank()` | `vim.highlight.on_yank()` |
-| `vim.diagnostic.jump()` | `vim.diagnostic.goto_next()` |
-| `vim.uv` | `vim.loop` |
+| `vim.hl.on_yank()` | `vim.highlight.on_yank()` (alias, both work) |
+| `vim.diagnostic.jump()` | `vim.diagnostic.goto_next()` (deprecated) |
+| `vim.uv` | `vim.loop` (deprecated) |
 | `vim.lsp.*` native | n/a |
 
 ## Testing
@@ -96,7 +96,7 @@ Tests use a two-tier model: **unit tests** (mocked, `--noplugin`, fast) and **in
 ```bash
 ./tests/run_all_tests.sh                # Unit tests (default)
 ./tests/run_all_tests.sh --integration  # Unit + integration tests
-./tests/run_single_test.sh <file>       # Single suite
+./tests/run_single_test.sh tests/test_vcs_detection.lua  # Single suite (from repo root)
 ```
 
 Unit tests mock external plugin APIs (e.g., `jj.nvim`) via `tests/mocks/`. Integration tests (e.g., `test_jj_integration.lua`) require real plugins loaded by lazy.nvim. Test files live in `tests/` and use a custom assertion framework (no external test library). See `tests/README.md` for details.
