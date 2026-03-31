@@ -1,5 +1,14 @@
--- Test Suite: Command Execution
--- Tests that jj.nvim commands execute without errors
+-- Test Suite: Command Execution (Unit Tests)
+-- Tests VCS command routing and wrapper logic using mocks.
+-- Does NOT require lazy.nvim to fully initialize external plugins.
+--
+-- For tests that verify real jj.nvim command execution, see test_jj_integration.lua.
+
+-- Add tests/ to package.path so mocks can be required
+local script_dir = debug.getinfo(1, "S").source:match("@(.*/)")
+package.path = script_dir .. "?.lua;" .. script_dir .. "?/init.lua;" .. package.path
+
+local jj_mock = require("mocks.jj_mock")
 
 local results = {
   passed = 0,
@@ -10,6 +19,7 @@ local results = {
 }
 
 local function test(name, fn)
+  jj_mock.reset()
   local ok, err = pcall(fn)
   if ok then
     results.passed = results.passed + 1
@@ -34,55 +44,53 @@ local function warn(name, message)
   print(string.format("⚠ %s: %s", name, message))
 end
 
-print("\n=== Command Execution Tests ===\n")
-
--- Check if we're in a jj repository
-local vcs = require("utils.vcs")
-local vcs_type = vcs.detect_vcs_type()
-
-print(string.format("Current directory VCS type: %s\n", vcs_type))
-
-if vcs_type ~= "jj" then
-  warn("Not in jj repo", "Most tests will be skipped. Run these tests in a jj repository for full coverage.")
+local function assert_eq(actual, expected, msg)
+  if actual ~= expected then
+    error(string.format("%s: expected %s, got %s", msg or "Assertion failed", tostring(expected), tostring(actual)))
+  end
 end
 
--- Test 1: :J command exists and is callable
-test(":J command is callable", function()
-  local commands = vim.api.nvim_get_commands({})
-  if not commands.J then
-    error(":J command not registered")
-  end
+print("\n=== Command Execution Tests (Unit) ===\n")
 
-  -- Try to get command info
-  local cmd_info = commands.J
-  if not cmd_info then
-    error("Could not get :J command info")
-  end
-end)
+-- Install mocks
+jj_mock.install()
 
--- Test 2: jj.cmd.status is callable
+-- Detect VCS type (uses real utils.vcs — not mocked)
+local vcs = require("utils.vcs")
+local vcs_type = vcs.detect_vcs_type()
+print(string.format("Current directory VCS type: %s\n", vcs_type))
+
+-- Test 1: jj.cmd.status is callable via mock
 test("jj.cmd.status function is callable", function()
   local cmd = require("jj.cmd")
-  if type(cmd.status) ~= "function" then
-    error("jj.cmd.status is not a function")
-  end
+  assert_eq(type(cmd.status), "function", "jj.cmd.status should be a function")
+  cmd.status({ notify = true })
+  assert_eq(jj_mock.calls[1].fn, "status", "Should record status call")
 end)
 
--- Test 3: Test command execution in jj repo (if applicable)
-if vcs_type == "jj" then
-  test("Execute :J status command (non-interactive)", function()
-    local cmd = require("jj.cmd")
+-- Test 2: jj.cmd functions dispatch and record arguments
+test("jj.cmd functions pass arguments correctly", function()
+  local cmd = require("jj.cmd")
+  cmd.describe({ message = "test commit" })
+  assert_eq(jj_mock.calls[1].fn, "describe", "Should record describe call")
+  assert_eq(jj_mock.calls[1].args.message, "test commit", "Should pass message arg")
+end)
 
-    -- Execute status with notify option (won't open buffer)
-    local ok, err = pcall(function()
-      cmd.status({ notify = true })
-    end)
-
+-- Test 3: All jj.cmd functions are callable
+test("All jj.cmd functions execute without error", function()
+  local cmd = require("jj.cmd")
+  local fns = { "status", "log", "describe", "new", "edit", "diff", "squash" }
+  for _, fn_name in ipairs(fns) do
+    local ok, err = pcall(cmd[fn_name], {})
     if not ok then
-      error(string.format("Command execution failed: %s", err))
+      error(string.format("jj.cmd.%s failed: %s", fn_name, err))
     end
-  end)
+  end
+  assert_eq(#jj_mock.calls, #fns, string.format("Should record %d calls", #fns))
+end)
 
+-- Test 4: Test jj CLI directly (real, not mocked)
+if vcs_type == "jj" then
   test("Test jj CLI directly", function()
     local handle = io.popen("jj st 2>&1")
     if not handle then
@@ -98,11 +106,9 @@ if vcs_type == "jj" then
 
     print(string.format("  jj st output: %s", result:sub(1, 50):gsub("\n", " ")))
   end)
-else
-  manual("Command execution in jj repo", "Run this test in a jj repository to test command execution")
 end
 
--- Test 4: Test VCS command routing
+-- Test 5: VCS command routing works (real utils.vcs, not mocked)
 test("VCS command routing works", function()
   local vcs_module = require("utils.vcs")
   local detected_type = vcs_module.detect_vcs_type()
@@ -112,7 +118,6 @@ test("VCS command routing works", function()
     return
   end
 
-  -- Test that we can detect the VCS type
   if detected_type ~= "jj" and detected_type ~= "git" then
     error(string.format("Invalid VCS type detected: %s", detected_type))
   end
@@ -120,19 +125,12 @@ test("VCS command routing works", function()
   print(string.format("  VCS routing detected: %s", detected_type))
 end)
 
--- Test 5: Test keymap execution wrapper (without actually executing)
+-- Test 6: VCS keymap helper functions exist (real utils.vcs API)
 test("VCS keymap helper functions exist", function()
-  -- The keymaps are defined in a plugin config, so we can't easily test them
-  -- without triggering them. Instead, verify the VCS module API is complete.
   local vcs_module = require("utils.vcs")
-
   local required_functions = {
-    "detect_vcs_type",
-    "is_jj_repo",
-    "is_git_repo",
-    "get_repo_root",
-    "clear_cache",
-    "get_cache_stats"
+    "detect_vcs_type", "is_jj_repo", "is_git_repo",
+    "get_repo_root", "clear_cache", "get_cache_stats"
   }
 
   for _, fn_name in ipairs(required_functions) do
@@ -144,28 +142,8 @@ test("VCS keymap helper functions exist", function()
   print("  All VCS helper functions exist")
 end)
 
--- Test 6: Test error handling for commands outside jj repo
-if vcs_type ~= "jj" then
-  test("Commands handle non-jj repo gracefully", function()
-    local cmd = require("jj.cmd")
-
-    -- This should fail gracefully (not crash)
-    local ok, err = pcall(function()
-      cmd.status({ notify = true })
-    end)
-
-    -- We expect this to fail or warn, not crash
-    if ok then
-      warn("Command execution", "Command succeeded outside jj repo (unexpected)")
-    else
-      -- Check that error message is reasonable
-      if not err:match("jj") and not err:match("repository") then
-        error("Error message doesn't mention jj or repository: " .. err)
-      end
-      print("  Graceful error: " .. tostring(err):sub(1, 50))
-    end
-  end)
-end
+-- Cleanup mocks
+jj_mock.uninstall()
 
 -- Manual tests (require user interaction)
 print("\n=== Manual Tests Required ===")
@@ -196,7 +174,7 @@ if results.failed > 0 then
       print(string.format("  - %s: %s", test_result.name, test_result.error))
     end
   end
-  vim.cmd("cquit 1") -- Exit with error code
+  vim.cmd("cquit 1")
 else
   print("\nAll automated tests passed!")
 
@@ -218,5 +196,5 @@ else
     end
   end
 
-  vim.cmd("qall!") -- Exit successfully
+  vim.cmd("qall!")
 end
