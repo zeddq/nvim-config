@@ -2,21 +2,6 @@
 -- Optional but recommended for better experience
 
 return {
-  -- File explorer: Moved to neo-tree.lua (unified git/jj support)
-  -- See lua/plugins/neo-tree.lua for configuration
-
-  config = function()
-    require("nvim-tree").setup({
-      view = {
-        width = 30,
-      },
-      filters = {
-        dotfiles = false,
-      },
-    })
-    vim.keymap.set("n", "<leader>e", ":NvimTreeToggle<CR>", { desc = "Toggle file explorer" })
-  end,
-
   -- Statusline
   {
     "nvim-lualine/lualine.nvim",
@@ -35,7 +20,6 @@ return {
   -- Fuzzy finder
   {
     "nvim-telescope/telescope.nvim",
-    tag = "0.1.5",
     dependencies = {
       "nvim-lua/plenary.nvim",
       { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
