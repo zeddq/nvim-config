@@ -51,4 +51,3 @@ vim.keymap.set("n", "<leader>ld", lsp_utils.toggle_log_level, { desc = "Toggle L
 vim.keymap.set("n", "<leader>ll", lsp_utils.open_log, { desc = "Open LSP log" })
 vim.keymap.set("n", "<leader>lt", lsp_utils.tail_log, { desc = "Tail LSP log" })
 
---local osv = require("osv")
