@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Git post-commit hook: regenerate the keybinding cheatsheet.
+# Runs in background so it never blocks the commit.
+# Install via: ./scripts/setup.sh
+
+REPO_DIR="$(git rev-parse --show-toplevel)"
+GENERATOR="$REPO_DIR/cheatsheet/generate.sh"
+
+if [ -x "$GENERATOR" ]; then
+  "$GENERATOR" --html-only &>/dev/null &
+fi
