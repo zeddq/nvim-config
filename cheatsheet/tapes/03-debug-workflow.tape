@@ -1,6 +1,6 @@
 # Debug Workflow — DAP breakpoints, stepping, UI
 # Records: set breakpoint, start debug, step, inspect, REPL
-# Requires: nvim with this config, a Python file open
+# Requires: nvim with this config, example.py in current directory
 
 Output cheatsheet/workflows/03-debug-workflow.webp
 Set FontSize 14

@@ -1,6 +1,6 @@
 # LSP Workflow — Navigation, diagnostics, code actions
 # Records: go-to-definition, hover, references, rename, format
-# Requires: nvim with this config, a Python file open
+# Requires: nvim with this config, example.py in current directory
 
 Output cheatsheet/workflows/02-lsp-workflow.webp
 Set FontSize 14
