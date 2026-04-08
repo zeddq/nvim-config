@@ -272,7 +272,6 @@ return {
           formatting.goimports,
 
           -- SQL
-          formatting.sqlformat,
 
           -- General code actions
           code_actions.gitsigns,
@@ -336,7 +335,6 @@ return {
           "prettier",
           "markdownlint",
           "shfmt",
-          "sqlformat",
         },
         -- Disable automatic handlers - we configure sources manually in none-ls
         handlers = {

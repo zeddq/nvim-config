@@ -1,4 +1,4 @@
--- LSP Configuration with Mason and Neovim 0.11+ APIs
+-- LSP Configuration with Mason and Neovim 0.12+ APIs
 -- Complete setup for Python development
 
 return {
@@ -57,7 +57,7 @@ return {
         return vim.fn.exepath("python3") or vim.fn.exepath("python") or "python"
       end
 
-      -- LspAttach autocmd for on_attach logic (Neovim 0.11+ pattern)
+      -- LspAttach autocmd for on_attach logic (Neovim 0.12+ pattern)
       vim.api.nvim_create_autocmd("LspAttach", {
         group = vim.api.nvim_create_augroup("UserLspConfig", { clear = true }),
         callback = function(args)
@@ -213,16 +213,16 @@ return {
         end,
       })
 
-      -- Mason-lspconfig simplified (Neovim 0.11+ pattern)
+      -- Mason-lspconfig simplified (Neovim 0.12+ pattern)
       -- No handlers block, no automatic_installation
       require("mason-lspconfig").setup({
         ensure_installed = { "basedpyright", "ruff", "pylsp", "lua_ls", "bashls", "jdtls", "taplo" },
       })
 
-      -- Configure each server with vim.lsp.config (Neovim 0.11+ API)
+      -- Configure each server with vim.lsp.config (Neovim 0.12+ API)
 
       -- basedpyright configuration
-      vim.lsp.config["basedpyright"] = {
+      vim.lsp.config("basedpyright", {
         capabilities = capabilities,
         settings = {
           basedpyright = {
@@ -246,10 +246,10 @@ return {
           "Pipfile",
           ".git",
         },
-      }
+      })
 
       -- ruff configuration
-      vim.lsp.config["ruff"] = {
+      vim.lsp.config("ruff", {
         capabilities = capabilities,
         init_options = {
           settings = {
@@ -257,10 +257,10 @@ return {
             fixAll = true,
           },
         },
-      }
+      })
 
       -- pylsp configuration (for refactoring with rope and diagnostics with python-lsp-ruff)
-      vim.lsp.config["pylsp"] = {
+      vim.lsp.config("pylsp", {
         capabilities = capabilities,
         settings = {
           pylsp = {
@@ -271,9 +271,9 @@ return {
               rope_completion = { enabled = false },
               rope_rename = { enabled = true },
 
-              -- Enable ruff for diagnostics (python-lsp-ruff plugin)
-              -- This auto-disables pycodestyle, pyflakes, mccabe, autopep8, yapf
-              ruff = { enabled = true },
+              -- Disable ruff in pylsp (standalone ruff LSP handles diagnostics)
+              -- python-lsp-ruff must be disabled to avoid duplicate diagnostics
+              ruff = { enabled = false },
 
               -- Explicitly disable other diagnostic/linting plugins
               jedi_completion = { enabled = false },
@@ -289,10 +289,10 @@ return {
             },
           },
         },
-      }
+      })
 
       -- lua_ls configuration
-      vim.lsp.config["lua_ls"] = {
+      vim.lsp.config("lua_ls", {
         capabilities = capabilities,
         settings = {
           Lua = {
@@ -315,13 +315,16 @@ return {
             },
           },
         },
-      }
+      })
 
       -- jdtls (Java) configuration
-      local java_home = "/Users/cezary/Library/Java/JavaVirtualMachines/jbr-21.0.10/Contents/Home"
+      local java_home = vim.env.JAVA_HOME
+      if not java_home or java_home == "" then
+        vim.notify("JAVA_HOME not set — jdtls will not start", vim.log.levels.WARN)
+      else
       local jdtls_workspace = vim.fn.stdpath("cache") .. "/jdtls/workspace/"
 
-      vim.lsp.config["jdtls"] = {
+      vim.lsp.config("jdtls", {
         capabilities = capabilities,
         cmd = {
           "jdtls",
@@ -372,10 +375,12 @@ return {
           "settings.gradle.kts",
           ".git",
         },
-      }
+      })
+      vim.lsp.enable("jdtls")
+      end
 
       -- bashls configuration
-      vim.lsp.config["bashls"] = {
+      vim.lsp.config("bashls", {
         capabilities = capabilities,
         settings = {
           bashIde = {
@@ -387,13 +392,10 @@ return {
         cmd_env = {
           DEBUG = "true",
         },
-        flags = {
-          debounce_text_changes = 150,
-        },
-      }
+      })
 
       -- taplo (TOML) configuration
-      vim.lsp.config["taplo"] = {
+      vim.lsp.config("taplo", {
         capabilities = capabilities,
         settings = {
           evenBetterToml = {
@@ -404,18 +406,17 @@ return {
             },
           },
         },
-      }
+      })
 
-      -- Enable all configured servers (Neovim 0.11+ API)
+      -- Enable all configured servers (Neovim 0.12+ API)
       vim.lsp.enable("basedpyright")
       vim.lsp.enable("ruff")
       vim.lsp.enable("pylsp")
       vim.lsp.enable("lua_ls")
       vim.lsp.enable("bashls")
-      vim.lsp.enable("jdtls")
       vim.lsp.enable("taplo")
 
-      -- Configure diagnostics (Neovim 0.11+ API with inline sign text)
+      -- Configure diagnostics (Neovim 0.12+ API with inline sign text)
       vim.diagnostic.config({
         virtual_text = {
           prefix = "●",
