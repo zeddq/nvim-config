@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Modern Neovim 0.11+ configuration featuring LSP-based development, autocompletion, and **dual VCS support** (Git + Jujutsu). Plugin management uses [lazy.nvim](https://github.com/folke/lazy.nvim). Leader key is `<Space>`, local leader is `\`.
+Modern Neovim 0.12+ configuration featuring LSP-based development, autocompletion, and **dual VCS support** (Git + Jujutsu). Plugin management uses [lazy.nvim](https://github.com/folke/lazy.nvim). Leader key is `<Space>`, local leader is `\`.
 
 ## Directory Structure
 
@@ -19,39 +19,39 @@ lua/
     completion.lua       # nvim-cmp autocompletion (sources: LSP, lazydev, snippets, buffer, path)
     lazydev.lua          # Neovim Lua API support (vim.* completions, luvit-meta)
     treesitter.lua       # Syntax highlighting
-    conform.lua          # Modern formatting (ruff, stylua, prettier, shfmt) — format-on-save
     none-ls.lua          # Custom LSP sources (AppleScript diagnostics/formatter/actions, markdownlint)
     vcs-keymaps.lua      # Context-aware Git/Jujutsu keybindings
     jj.lua               # Jujutsu VCS integration (jj.nvim)
     jj-diffconflicts.lua # Jujutsu merge conflict viewer
     neo-tree.lua         # File explorer (jj-aware via neo-tree-jj.nvim)
     claude-code.lua      # Claude Code AI assistant plugin
-    ui.lua               # Theme (Tokyo Night) + gitsigns + lualine
+    ui.lua               # Theme (Tokyo Night) + telescope + gitsigns + lualine
     snacks.lua           # QoL: dashboard, notifications, indent, statuscolumn, terminal
     flash.lua            # Enhanced f/t/s navigation (flash.nvim)
     dap.lua              # Debug Adapter Protocol (Python, Lua, Bash/Zsh)
-    toggleterm.lua       # Floating terminal (Ctrl-\)
     soil.lua             # PlantUML preview
-    vim-lsp.lua          # Alternative LSP setup (vim-lsp + efm — not active by default)
+    vim-lsp.lua          # Alternative LSP setup (vim-lsp + efm — inactive, kept for reference)
   utils/
     vcs.lua              # VCS detection (source of truth, 5s cache)
     jj_merge.lua         # 3-way merge conflict resolution for jj resolve
     lsp.lua              # LSP log management utilities
     init.lua             # Utils loader
-snippets/                # Custom LuaSnip snippets (loaded from lua/plugins/completion.lua)
+snippets/                # Custom LuaSnip snippets
 tests/                   # Headless Neovim test suites
   mocks/                 # Test mocks (jj_mock.lua)
   run_all_tests.sh       # Test runner (--integration flag for real plugins)
   run_single_test.sh     # Single test runner
 docs/                    # Extended documentation (JJ_INTEGRATION, SNACKS)
+scripts/
+  post-commit            # Git hook: regenerate cheatsheet after commit
+  setup.sh               # Install git hooks (symlinks scripts/ → .git/hooks/)
 cheatsheet/
   generate.sh            # Cheatsheet generator (HTML + optional VHS tape recording)
   tapes/                 # VHS .tape files for reproducible workflow demos
   workflows/             # Generated WebP/GIF output (gitignored)
   index.html             # Generated HTML cheatsheet (gitignored)
 .claude/
-  commands/run-tests.md  # Claude Code slash command for test execution
-  settings.json          # Claude Code permissions + post-commit hook
+  settings.json          # Claude Code permissions + PostToolUse hook
 ```
 
 ## Key Architectural Patterns
@@ -70,7 +70,6 @@ cheatsheet/
 - Plugin specs live in `lua/plugins/*.lua`, each returning a table (or list of tables)
 - Import order in `init.lua` matters — dependencies load first
 - `snacks.lua` has priority 1000 (loads earliest)
-- `change_detection.notify = true` — notifies when plugin files change on disk
 
 ### LSP Server Architecture
 
@@ -79,19 +78,23 @@ Three Python LSP servers work together with separated responsibilities:
 - **ruff**: Code actions (fix all, organize imports) + formatting only (hover disabled)
 - **pylsp**: Refactoring via rope only (diagnostics via python-lsp-ruff; all other capabilities disabled)
 
-Other servers: `lua_ls` (with lazydev.nvim workspace management), `bashls`, `jdtls` (Java), `taplo` (TOML with jj config schema)
+Other servers: `lua_ls` (with lazydev.nvim workspace management), `bashls`, `jdtls` (Java, requires `JAVA_HOME`), `taplo` (TOML with jj config schema)
 
 ### Dual Formatting Setup
 
-- **conform.nvim** (`conform.lua`): Primary formatter for standard tools — ruff (Python), stylua (Lua), prettier (JS/TS/JSON/YAML/MD), shfmt (shell). Format-on-save enabled.
-- **none-ls.nvim** (`none-ls.lua`): Custom LSP sources that can't be expressed through conform — AppleScript osacompile diagnostics/formatter/code-actions, markdownlint diagnostics, gitsigns code actions. Also has format-on-save for its own sources.
+- **none-ls.nvim** (`none-ls.lua`): Custom LSP sources — AppleScript osacompile diagnostics/formatter/code-actions, markdownlint diagnostics, gitsigns code actions. Format-on-save for its own sources.
+- **Ruff**: Python formatting via LSP code actions (not conform.nvim — conform was removed).
 
-### Neovim 0.11+ APIs
+### Neovim 0.12+ APIs
 
-- Uses `vim.lsp.*` native APIs (not deprecated `vim.lsp.buf_*`)
+- Uses `vim.lsp.config()` / `vim.lsp.enable()` for LSP server management
+- Uses `vim.lsp.log.set_level()` (replaces deprecated `vim.lsp.set_log_level()`)
 - Uses `vim.hl.on_yank()` (preferred over `vim.highlight.on_yank()` alias)
 - Uses `vim.uv` for filesystem and timing operations
 - Uses `vim.diagnostic.jump()` for diagnostic navigation
+- Uses `vim.text.diff` (renamed from `vim.diff` in 0.12)
+- New 0.12 default keymaps available: `grt` (type definition), `grx` (run codelens)
+- New built-in commands: `:lsp` (interactive LSP management), `:DiffTool`, `:Undotree`
 
 ## Important Conventions
 
@@ -117,11 +120,28 @@ Tests use a **two-tier model**: unit tests (fast, mocked) and integration tests 
 ./tests/run_single_test.sh tests/<test_file>.lua
 ```
 
-Unit tests run via `nvim --headless --noplugin -u init.lua -l <test_file>`. Integration tests (e.g., `test_jj_integration.lua`) run without `--noplugin` so lazy.nvim can initialize plugins. Results saved to `tests/test_results.txt`.
-
 Unit suites: `test_vcs_detection.lua`, `test_plugin_loading.lua`, `test_commands.lua`.
 Integration suite: `test_jj_integration.lua` (real jj.nvim plugin required).
 Mocks: `tests/mocks/jj_mock.lua` — provides fake jj.nvim API for unit tests.
+
+## Cheatsheet Generation
+
+The cheatsheet is a Tokyo Night-themed HTML reference of all keybindings, LSP architecture, and plugins.
+
+```bash
+# Generate HTML cheatsheet only
+./cheatsheet/generate.sh --html-only
+
+# Record animated WebP workflow demos (requires: brew install vhs)
+./cheatsheet/generate.sh --record
+
+# Both (default)
+./cheatsheet/generate.sh
+```
+
+Generated output (`cheatsheet/index.html`, `cheatsheet/workflows/`) is gitignored. The cheatsheet auto-regenerates via:
+- **Claude Code PostToolUse hook** — triggers on `git commit`, `jj commit`, `jj describe` (see `.claude/settings.json`)
+- **Git post-commit hook** — install via `./scripts/setup.sh`
 
 ## Common Development Tasks
 
@@ -154,14 +174,10 @@ Mocks: `tests/mocks/jj_mock.lua` — provides fake jj.nvim API for unit tests.
 - Neo-tree jj integration: `lua/plugins/neo-tree.lua`
 - Gitsigns conditional loading: `lua/plugins/ui.lua`
 
-### Cheatsheet Generation
-
-`cheatsheet/generate.sh` produces a Tokyo Night-themed HTML cheatsheet with all keybindings, LSP architecture, and plugin overview. Regenerated automatically after `git commit`, `jj commit`, or `jj describe` via a Claude Code `PostToolUse` hook (see `.claude/settings.json`). An optional git post-commit hook can be installed manually — see `.git/hooks/post-commit`.
+### Installing Git Hooks
 
 ```bash
-./cheatsheet/generate.sh              # HTML + record VHS tapes (if vhs installed)
-./cheatsheet/generate.sh --html-only  # HTML only
-./cheatsheet/generate.sh --record     # Record animated GIF demos (requires: brew install vhs ffmpeg ttyd)
+./scripts/setup.sh
 ```
 
-VHS tape files in `cheatsheet/tapes/` define reproducible workflow demos (VCS, LSP, DAP, navigation). Output goes to `cheatsheet/workflows/` (gitignored).
+This symlinks `scripts/post-commit` into `.git/hooks/`. The hook regenerates the cheatsheet HTML after every commit (runs in background, never blocks).
