@@ -21,7 +21,7 @@
 -- - <C-,> - Primary toggle (normal/terminal mode)
 -- - <leader>cc - Alternative toggle
 -- - <leader>cC - Continue conversation
--- - <leader>cr - Resume conversation picker
+-- - <leader>cR - Resume conversation picker
 -- - <leader>cv - Verbose mode
 
 return {
@@ -35,7 +35,7 @@ return {
     { "<C-,>", desc = "Toggle Claude Code" },
     { "<leader>cc", desc = "Toggle Claude Code" },
     { "<leader>cC", desc = "Continue conversation" },
-    { "<leader>cr", desc = "Resume conversation (picker)" },
+    { "<leader>cR", desc = "Resume conversation (picker)" },
     { "<leader>cv", desc = "Verbose mode" },
   },
   config = function()
@@ -132,7 +132,7 @@ return {
     })
     
     -- Resume conversation picker (not in plugin defaults)
-    vim.keymap.set('n', '<leader>cr', ':ClaudeCodeResume<CR>', {
+    vim.keymap.set('n', '<leader>cR', ':ClaudeCodeResume<CR>', {
       desc = 'Resume conversation (picker)',
       silent = true,
     })
