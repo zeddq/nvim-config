@@ -15,7 +15,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -qE 'git commit|jj commit|jj describe'; then ./cheatsheet/generate.sh --html-only 2>/dev/null; fi"
+            "command": "if printf '%s' \"$CLAUDE_TOOL_INPUT\" | grep -qE 'git commit|jj commit|jj describe'; then ./cheatsheet/generate.sh --html-only 2>/dev/null; fi"
           }
         ]
       }

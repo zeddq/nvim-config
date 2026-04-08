@@ -1,15 +1,15 @@
 # Debug Workflow — DAP breakpoints, stepping, UI
 # Records: set breakpoint, start debug, step, inspect, REPL
-# Requires: nvim with this config, example.py in current directory
+# Requires: nvim with this config, cheatsheet/fixtures/example.py
 
-Output cheatsheet/workflows/03-debug-workflow.webp
+Output cheatsheet/workflows/03-debug-workflow.gif
 Set FontSize 14
 Set Width 1200
 Set Height 800
 Set Theme "TokyoNight"
 Set TypingSpeed 60ms
 
-Type "nvim example.py"
+Type "nvim cheatsheet/fixtures/example.py"
 Enter
 Sleep 2s
 
@@ -26,16 +26,20 @@ Type "x > 10"
 Enter
 Sleep 1s
 
-# Start debugging (F5)
-F5
+# Start debugging
+# NOTE: VHS does not support function keys (F1-F12). Use :lua equivalents.
+Type ":lua require('dap').continue()"
+Enter
 Sleep 2s
 
-# Step over (F10)
-F10
+# Step over
+Type ":lua require('dap').step_over()"
+Enter
 Sleep 1s
 
-# Step into (F11)
-F11
+# Step into
+Type ":lua require('dap').step_into()"
+Enter
 Sleep 1s
 
 # Open REPL
@@ -46,11 +50,11 @@ Sleep 1500ms
 Type " du"
 Sleep 2s
 
-# Terminate debug session before exiting
+# Terminate debug session and exit all windows
 Type ":DapTerminate"
 Enter
 Sleep 500ms
 
-Type ":q!"
+Type ":qa!"
 Enter
 Sleep 500ms

@@ -161,7 +161,7 @@ Mocks: `tests/mocks/jj_mock.lua` — provides fake jj.nvim API for unit tests.
 ```bash
 ./cheatsheet/generate.sh              # HTML + record VHS tapes (if vhs installed)
 ./cheatsheet/generate.sh --html-only  # HTML only
-./cheatsheet/generate.sh --record     # Record animated WebP demos (requires: brew install vhs)
+./cheatsheet/generate.sh --record     # Record animated GIF demos (requires: brew install vhs ffmpeg ttyd)
 ```
 
 VHS tape files in `cheatsheet/tapes/` define reproducible workflow demos (VCS, LSP, DAP, navigation). Output goes to `cheatsheet/workflows/` (gitignored).

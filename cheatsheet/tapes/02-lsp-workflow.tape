@@ -1,15 +1,15 @@
 # LSP Workflow — Navigation, diagnostics, code actions
 # Records: go-to-definition, hover, references, rename, format
-# Requires: nvim with this config, example.py in current directory
+# Requires: nvim with this config, cheatsheet/fixtures/example.py
 
-Output cheatsheet/workflows/02-lsp-workflow.webp
+Output cheatsheet/workflows/02-lsp-workflow.gif
 Set FontSize 14
 Set Width 1200
 Set Height 800
 Set Theme "TokyoNight"
 Set TypingSpeed 60ms
 
-Type "nvim example.py"
+Type "nvim cheatsheet/fixtures/example.py"
 Enter
 Sleep 2s
 

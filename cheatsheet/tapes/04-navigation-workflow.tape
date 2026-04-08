@@ -2,7 +2,7 @@
 # Records: flash jump, file explorer, dashboard, scratch buffer
 # Requires: nvim with this config
 
-Output cheatsheet/workflows/04-navigation-workflow.webp
+Output cheatsheet/workflows/04-navigation-workflow.gif
 Set FontSize 14
 Set Width 1200
 Set Height 800
