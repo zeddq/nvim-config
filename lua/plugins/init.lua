@@ -25,6 +25,7 @@ require("lazy").setup({
   { import = "plugins.vcs-keymaps" }, -- Context-aware VCS keybindings
   { import = "plugins.claude-code" }, -- Claude Code AI assistant
   { import = "plugins.lsp" }, -- Language servers
+  { import = "plugins.lazydev" },   -- Neovim Lua API (vim.* completions)
   { import = "plugins.completion" }, -- Autocompletion
   { import = "plugins.treesitter" }, -- Syntax highlighting
   { import = "plugins.none-ls" }, -- Formatting & linting
