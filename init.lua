@@ -2,7 +2,7 @@
 -- Location: ~/.config/nvim/init.lua
 
 -- Set LSP log level to reduce log file bloat
-vim.lsp.set_log_level("DEBUG")
+vim.lsp.set_log_level("WARN")
 -- Add to init.aalua or a debug utils file
 _G.trace = function()
   local info = debug.getinfo(2, "Snl")

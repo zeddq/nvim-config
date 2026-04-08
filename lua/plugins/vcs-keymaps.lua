@@ -10,10 +10,10 @@
 
 return {
   {
-    name = "vcs-keymaps",
     dir = vim.fn.stdpath("config") .. "/lua/plugins",
-    lazy = false,  -- Load immediately (keybindings available everywhere)
-    priority = 50,  -- Load after neo-tree but before user interaction
+    name = "vcs-keymaps",
+    lazy = false, -- Load immediately (keybindings available everywhere)
+    priority = 50, -- Load after neo-tree but before user interaction
 
     config = function()
       local vcs = require("utils.vcs")
@@ -54,10 +54,7 @@ return {
         end)
 
         if not exec_ok then
-          vim.notify(
-            string.format("[%s] Command failed: %s", vcs_type:upper(), err),
-            vim.log.levels.ERROR
-          )
+          vim.notify(string.format("[%s] Command failed: %s", vcs_type:upper(), err), vim.log.levels.ERROR)
         end
       end
 
@@ -88,42 +85,38 @@ return {
       -- ========================================================================
 
       vim.keymap.set("n", "<leader>gs", function()
-        exec_vcs_cmd(
-          function() run_terminal("git status") end,
-          function()
-            -- jj.nvim uses :J command interface
-            vim.cmd("J status")
-          end
-        )
+        exec_vcs_cmd(function()
+          run_terminal("git status")
+        end, function()
+          -- jj.nvim uses :J command interface
+          vim.cmd("J status")
+        end)
       end, { desc = "VCS Status" })
 
       vim.keymap.set("n", "<leader>gl", function()
-        exec_vcs_cmd(
-          function() run_terminal("git log --oneline --graph --decorate --all -20") end,
-          function()
-            vim.cmd("J log")
-          end
-        )
+        exec_vcs_cmd(function()
+          run_terminal("git log --oneline --graph --decorate --all -20")
+        end, function()
+          vim.cmd("J log")
+        end)
       end, { desc = "VCS Log" })
 
       vim.keymap.set("n", "<leader>gd", function()
-        exec_vcs_cmd(
-          function() run_terminal("git diff") end,
-          function()
-            vim.cmd("J diff")
-          end
-        )
+        exec_vcs_cmd(function()
+          run_terminal("git diff")
+        end, function()
+          vim.cmd("J diff")
+        end)
       end, { desc = "VCS Diff" })
 
       vim.keymap.set("n", "<leader>gb", function()
-        exec_vcs_cmd(
-          function() run_terminal("git blame " .. vim.fn.expand("%")) end,
-          function()
-            -- jj doesn't have built-in blame, use git blame as fallback
-            vim.notify("jj doesn't have blame, using git blame", vim.log.levels.INFO)
-            run_terminal("git blame " .. vim.fn.expand("%"))
-          end
-        )
+        exec_vcs_cmd(function()
+          run_terminal("git blame " .. vim.fn.expand("%"))
+        end, function()
+          -- jj doesn't have built-in blame, use git blame as fallback
+          vim.notify("jj doesn't have blame, using git blame", vim.log.levels.INFO)
+          run_terminal("git blame " .. vim.fn.expand("%"))
+        end)
       end, { desc = "VCS Blame" })
 
       -- ========================================================================
@@ -131,22 +124,20 @@ return {
       -- ========================================================================
 
       vim.keymap.set("n", "<leader>gc", function()
-        exec_vcs_cmd(
-          function() run_terminal("git commit") end,
-          function()
-            vim.cmd("J describe")
-          end
-        )
+        exec_vcs_cmd(function()
+          run_terminal("git commit")
+        end, function()
+          vim.cmd("J describe")
+        end)
       end, { desc = "VCS Commit/Describe" })
 
       vim.keymap.set("n", "<leader>gC", function()
-        exec_vcs_cmd(
-          function() run_terminal("git commit --amend") end,
-          function()
-            -- In jj, just describe again (it's always amending the current change)
-            vim.cmd("J describe")
-          end
-        )
+        exec_vcs_cmd(function()
+          run_terminal("git commit --amend")
+        end, function()
+          -- In jj, just describe again (it's always amending the current change)
+          vim.cmd("J describe")
+        end)
       end, { desc = "VCS Amend/Redescribe" })
 
       -- ========================================================================
@@ -154,29 +145,27 @@ return {
       -- ========================================================================
 
       vim.keymap.set("n", "<leader>gB", function()
-        exec_vcs_cmd(
-          function()
-            vim.ui.input({ prompt = "Branch name: " }, function(input)
-              if input and input ~= "" then
-                run_terminal("git checkout -b " .. input)
-              end
-            end)
-          end,
-          function()
-            vim.ui.input({ prompt = "Bookmark name: " }, function(input)
-              if input and input ~= "" then
-                run_terminal("jj bookmark create " .. input)
-              end
-            end)
-          end
-        )
+        exec_vcs_cmd(function()
+          vim.ui.input({ prompt = "Branch name: " }, function(input)
+            if input and input ~= "" then
+              run_terminal("git checkout -b " .. input)
+            end
+          end)
+        end, function()
+          vim.ui.input({ prompt = "Bookmark name: " }, function(input)
+            if input and input ~= "" then
+              run_terminal("jj bookmark create " .. input)
+            end
+          end)
+        end)
       end, { desc = "Create Branch/Bookmark" })
 
       vim.keymap.set("n", "<leader>gL", function()
-        exec_vcs_cmd(
-          function() run_terminal("git branch -avv") end,
-          function() run_terminal("jj bookmark list") end
-        )
+        exec_vcs_cmd(function()
+          run_terminal("git branch -avv")
+        end, function()
+          run_terminal("jj bookmark list")
+        end)
       end, { desc = "List Branches/Bookmarks" })
 
       -- ========================================================================
@@ -184,24 +173,27 @@ return {
       -- ========================================================================
 
       vim.keymap.set("n", "<leader>gp", function()
-        exec_vcs_cmd(
-          function() run_terminal("git push") end,
-          function() run_terminal("jj git push") end
-        )
+        exec_vcs_cmd(function()
+          run_terminal("git push")
+        end, function()
+          run_terminal("jj git push")
+        end)
       end, { desc = "VCS Push" })
 
       vim.keymap.set("n", "<leader>gP", function()
-        exec_vcs_cmd(
-          function() run_terminal("git pull") end,
-          function() run_terminal("jj git fetch") end
-        )
+        exec_vcs_cmd(function()
+          run_terminal("git pull")
+        end, function()
+          run_terminal("jj git fetch")
+        end)
       end, { desc = "VCS Pull/Fetch" })
 
       vim.keymap.set("n", "<leader>gf", function()
-        exec_vcs_cmd(
-          function() run_terminal("git fetch") end,
-          function() run_terminal("jj git fetch") end
-        )
+        exec_vcs_cmd(function()
+          run_terminal("git fetch")
+        end, function()
+          run_terminal("jj git fetch")
+        end)
       end, { desc = "VCS Fetch" })
 
       -- ========================================================================
@@ -284,10 +276,7 @@ return {
         local stats = vcs.get_cache_stats()
 
         local msg = string.format(
-          "VCS Information:\n" ..
-          "  Type: %s\n" ..
-          "  Root: %s\n" ..
-          "  Cache: %d entries (%d valid, %d expired)",
+          "VCS Information:\n" .. "  Type: %s\n" .. "  Root: %s\n" .. "  Cache: %d entries (%d valid, %d expired)",
           vcs_type,
           root or "none",
           stats.total_entries,

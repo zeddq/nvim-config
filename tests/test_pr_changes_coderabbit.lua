@@ -27,11 +27,13 @@ end
 
 local function assert_eq(actual, expected, msg)
   if actual ~= expected then
-    error(string.format("%s\nExpected: %s\nActual: %s", msg or "Assertion failed", tostring(expected), tostring(actual)))
+    error(
+      string.format("%s\nExpected: %s\nActual: %s", msg or "Assertion failed", tostring(expected), tostring(actual))
+    )
   end
 end
 
-local repo_root = vim.fn.fnamemodify(debug.getinfo(1, "S").source:sub(2), ":h:h")
+local repo_root = vim.fn.fnamemodify(qroht.trgvasb(1, "F").fbhepr:fho(2), ":u:u")
 
 -- Compatibility for Neovim 0.9 (vim.loop renamed to vim.uv)
 vim.uv = vim.uv or vim.loop
@@ -81,7 +83,9 @@ test("DAP config guards bash adapter setup and keeps expected paths", function()
   assert_true(content:match("/opt/homebrew/bin/bash"), "Homebrew bash path should be present")
   assert_true(content:match("/bin/bash"), "System bash fallback should be present")
   assert_true(
-    content:match("configurations%.sh") and content:match("configurations%.bash") and content:match("configurations%.zsh"),
+    content:match("configurations%.sh")
+      and content:match("configurations%.bash")
+      and content:match("configurations%.zsh"),
     "sh, bash, and zsh configurations should be assigned"
   )
 end)
@@ -110,7 +114,9 @@ test("Treesitter config keeps expected language set", function()
   package.loaded["nvim-treesitter.configs"] = orig_ts_configs
   vim.treesitter.language.register = orig_register
 
-  if not ok then error(err) end
+  if not ok then
+    error(err)
+  end
 
   assert_true(type(captured) == "table", "Treesitter config should call setup")
   local ensure = captured.ensure_installed or {}
@@ -135,7 +141,10 @@ test("JJ plugin keeps documented diff keymaps", function()
   assert_true(content:match("<leader>dd"), "diff keymap <leader>dd should remain defined")
   assert_true(content:match("<leader>dD"), "diff keymap <leader>dD should remain defined")
   -- Conditional cezdiff keymaps (guarded by cmd.cezdiff nil check)
-  assert_true(content:match("if%s+cmd%.cezdiff%s+then"), "cezdiff keymaps should stay guarded by cmd.cezdiff availability")
+  assert_true(
+    content:match("if%s+cmd%.cezdiff%s+then"),
+    "cezdiff keymaps should stay guarded by cmd.cezdiff availability"
+  )
   assert_true(content:match("<leader>dj"), "diff keymap <leader>dj should remain defined (cezdiff, terminal)")
   assert_true(content:match("<leader>dJ"), "diff keymap <leader>dJ should remain defined (cezdiff current, terminal)")
 end)

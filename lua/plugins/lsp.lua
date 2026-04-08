@@ -29,8 +29,17 @@ return {
       })
 
       -- Get capabilities from cmp_nvim_lsp first
-      local capabilities = vim.lsp.protocol.make_client_capabilities()
-      capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
+      local capabilities = vim.tbl_deep_extend(
+        "force",
+        vim.lsp.protocol.make_client_capabilities(),
+        require("cmp_nvim_lsp").default_capabilities()
+      )
+
+      capabilities = vim.tbl_deep_extend(
+        "keep",
+        { workspace = { didChangeWatchedFiles = { dynamicRegistration = true } } },
+        capabilities
+      )
 
       -- Function to detect Python interpreter
       local function get_python_path()
@@ -71,7 +80,18 @@ return {
           local opts = { buffer = bufnr, silent = true }
 
           -- LSP keybindings
-          vim.keymap.set("n", "gd", vim.lsp.buf.definition, vim.tbl_extend("force", opts, { desc = "Go to definition" }))
+          vim.keymap.set(
+            "n",
+            "gd",
+            vim.lsp.buf.definition,
+            vim.tbl_extend("force", opts, { desc = "Go to definition" })
+          )
+          vim.keymap.set(
+            "n",
+            "<C-]>",
+            vim.lsp.buf.definition,
+            vim.tbl_extend("force", opts, { desc = "Go to definition" })
+          )
           vim.keymap.set(
             "n",
             "gD",
@@ -92,7 +112,12 @@ return {
             vim.lsp.buf.signature_help,
             vim.tbl_extend("force", opts, { desc = "Signature help" })
           )
-          vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, vim.tbl_extend("force", opts, { desc = "Rename symbol" }))
+          vim.keymap.set(
+            "n",
+            "<leader>rn",
+            vim.lsp.buf.rename,
+            vim.tbl_extend("force", opts, { desc = "Rename symbol" })
+          )
           vim.keymap.set(
             { "n", "v" },
             "<leader>ca",
@@ -184,7 +209,7 @@ return {
             -- Create user command for organize imports
             vim.api.nvim_buf_create_user_command(bufnr, "RuffOrganizeImports", function()
               vim.lsp.buf.code_action({
-                context = { only = { "source.organizeImports.ruff" }, diagnostics = {} },
+                context = { only = { "source.organizeImports" }, diagnostics = {} },
                 apply = true,
               })
             end, { desc = "Ruff: Organize Imports" })
@@ -192,7 +217,7 @@ return {
             -- Create user command for fix all
             vim.api.nvim_buf_create_user_command(bufnr, "RuffFixAll", function()
               vim.lsp.buf.code_action({
-                context = { only = { "source.fixAll.ruff" }, diagnostics = {} },
+                context = { only = { "source.fixAll" }, diagnostics = {} },
                 apply = true,
               })
             end, { desc = "Ruff: Fix All" })
@@ -291,7 +316,7 @@ return {
         },
       }
 
-      -- lua_ls configuration
+      -- lua_ls configuration (lazydev.nvim manages workspace libraries)
       vim.lsp.config["lua_ls"] = {
         capabilities = capabilities,
         settings = {
@@ -299,15 +324,7 @@ return {
             runtime = {
               version = "LuaJIT",
             },
-            diagnostics = {
-              globals = { "vim" },
-            },
             workspace = {
-              library = {
-                vim.env.VIMRUNTIME,
-                "${3rd}/luv/library",
-                "${3rd}/luassert/library",
-              },
               checkThirdParty = false,
             },
             telemetry = {
@@ -389,6 +406,7 @@ return {
         },
         flags = {
           debounce_text_changes = 150,
+          exit_timeout = 10,
         },
       }
 
@@ -423,10 +441,10 @@ return {
         },
         signs = {
           text = {
-            [vim.diagnostic.severity.ERROR] = " ",
-            [vim.diagnostic.severity.WARN] = " ",
-            [vim.diagnostic.severity.HINT] = " ",
-            [vim.diagnostic.severity.INFO] = " ",
+            [vim.diagnostic.severity.ERROR] = "E",
+            [vim.diagnostic.severity.WARN] = "W",
+            [vim.diagnostic.severity.HINT] = "H",
+            [vim.diagnostic.severity.INFO] = "I",
           },
         },
         underline = true,
@@ -434,7 +452,7 @@ return {
         severity_sort = true,
         float = {
           border = "rounded",
-          source = "always",
+          source = true,
           header = "",
           prefix = "",
         },

@@ -1,16 +1,53 @@
+-- local snacks = require("snacks")._G.Snacks
+
 return {
-  "folke/snacks.nvim",
+  "folke/Snacks.nvim",
   priority = 1000,
   lazy = false,
   opts = {
-    bigfile = { enabled = true, size = 1.5 * 1024 * 1024, setup = function(ctx) vim.b.minianimate_disable = true; vim.schedule(function() vim.bo[ctx.buf].syntax = ctx.ft end) end },
+    bigfile = {
+      enabled = true,
+      size = 1.5 * 1024 * 1024,
+      setup = function(ctx)
+        vim.b.minianimate_disable = true
+        vim.schedule(function()
+          vim.bo[ctx.buf].syntax = ctx.ft
+        end)
+      end,
+    },
     quickfile = { enabled = true },
-    statuscolumn = { enabled = true, left = { "mark", "sign" }, right = { "fold", "git" }, git = { patterns = { "GitSign", "MiniDiffSign" } } },
+    statuscolumn = {
+      enabled = true,
+      left = { "mark", "sign" },
+      right = { "fold", "git" },
+      git = { patterns = { "GitSign", "MiniDiffSign" } },
+    },
     indent = { enabled = true, char = "│", blank = " ", only_scope = false, only_current = false },
     words = { enabled = true, debounce = 200, modes = { "n", "i", "c" } },
     scroll = { enabled = false },
     notifier = { enabled = true, timeout = 3000, level = vim.log.levels.INFO, style = "compact", top_down = true },
-    dashboard = { enabled = true, sections = { { section = "header" }, { pane = 2, section = "keys", gap = 1, padding = 1 }, { pane = 2, icon = " ", title = "Recent Files", section = "recent_files", indent = 2, padding = 1 }, { pane = 2, icon = " ", title = "Projects", section = "projects", indent = 2, padding = 1 }, { pane = 2, icon = " ", title = "Git Status", section = "terminal", enabled = vim.fn.isdirectory(".git") == 1, cmd = "git status --short --branch --renames", height = 5, padding = 1, ttl = 5 * 60, indent = 3 }, { section = "startup" } } },
+    dashboard = {
+      enabled = true,
+      sections = {
+        { section = "header" },
+        { pane = 2, section = "keys", gap = 1, padding = 1 },
+        { pane = 2, icon = " ", title = "Recent Files", section = "recent_files", indent = 2, padding = 1 },
+        { pane = 2, icon = " ", title = "Projects", section = "projects", indent = 2, padding = 1 },
+        {
+          pane = 2,
+          icon = " ",
+          title = "Git Status",
+          section = "terminal",
+          enabled = vim.fn.isdirectory(".git") == 1,
+          cmd = "git status --short --branch --renames",
+          height = 5,
+          padding = 1,
+          ttl = 5 * 60,
+          indent = 3,
+        },
+        { section = "startup" },
+      },
+    },
     terminal = { enabled = true, win = { style = "terminal" } },
     picker = { enabled = false },
     explorer = { enabled = false },
@@ -18,12 +55,56 @@ return {
     input = { enabled = true },
   },
   keys = {
-    { "<c-/>", function() Snacks.terminal() end, desc = "Toggle Terminal", mode = { "n", "t" } },
-    { "<leader>sn", function() Snacks.notifier.show_history() end, desc = "Notification History" },
-    { "<leader>snd", function() Snacks.notifier.hide() end, desc = "Dismiss All Notifications" },
-    { "<leader>sd", function() Snacks.dashboard() end, desc = "Dashboard" },
-    { "<leader>gB", function() Snacks.gitbrowse() end, desc = "Git Browse", mode = { "n", "x" } },
-    { "<leader>ss", function() Snacks.scratch() end, desc = "Toggle Scratch Buffer" },
-    { "<leader>sS", function() Snacks.scratch.select() end, desc = "Select Scratch Buffer" },
+    {
+      "<c-/>",
+      function()
+        _G.Snacks.terminal()
+      end,
+      desc = "Toggle Terminal",
+      mode = { "n", "t" },
+    },
+    {
+      "<leader>sn",
+      function()
+        _G.Snacks.notifier.show_history()
+      end,
+      desc = "Notification History",
+    },
+    {
+      "<leader>snd",
+      function()
+        _G.Snacks.notifier.hide()
+      end,
+      desc = "Dismiss All Notifications",
+    },
+    {
+      "<leader>sd",
+      function()
+        _G.Snacks.dashboard()
+      end,
+      desc = "Dashboard",
+    },
+    {
+      "<leader>gB",
+      function()
+        _G.Snacks.gitbrowse()
+      end,
+      desc = "Git Browse",
+      mode = { "n", "x" },
+    },
+    {
+      "<leader>ss",
+      function()
+        _G.Snacks.scratch()
+      end,
+      desc = "Toggle Scratch Buffer",
+    },
+    {
+      "<leader>sS",
+      function()
+        _G.Snacks.scratch.select()
+      end,
+      desc = "Select Scratch Buffer",
+    },
   },
 }

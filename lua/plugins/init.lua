@@ -24,6 +24,7 @@ require("lazy").setup({
   { import = "plugins.neo-tree" }, -- File explorer with jj support
   { import = "plugins.vcs-keymaps" }, -- Context-aware VCS keybindings
   { import = "plugins.claude-code" }, -- Claude Code AI assistant
+  { import = "plugins.lazydev" }, -- Neovim Lua API support (before LSP)
   { import = "plugins.lsp" }, -- Language servers
   { import = "plugins.completion" }, -- Autocompletion
   { import = "plugins.treesitter" }, -- Syntax highlighting
@@ -38,6 +39,6 @@ require("lazy").setup({
     border = "rounded",
   },
   change_detection = {
-    notify = false,
+    notify = true,
   },
 })

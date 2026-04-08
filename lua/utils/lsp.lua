@@ -4,11 +4,11 @@ local M = {}
 function M.toggle_log_level()
   local current = vim.lsp.log.get_level()
   if current == vim.log.levels["DEBUG"] then
-    vim.lsp.set_log_level(vim.lsp.log_levels.INFO)
-    vim.notify("LSP log level: info", vim.log.levels.INFO)
+    vim.lsp.set_log_level(vim.lsp.log_levels.WARN)
+    vim.notify("LSP log level: info", vim.log.levels.WARN)
   else
     vim.lsp.set_log_level(vim.lsp.log_levels.DEBUG)
-    vim.notify("LSP log level: debug", vim.log.levels.INFO)
+    vim.notify("LSP log level: debug", vim.log.levels.WARN)
   end
 end
 

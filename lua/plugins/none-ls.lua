@@ -336,7 +336,6 @@ return {
           "prettier",
           "markdownlint",
           "shfmt",
-          "sqlformat",
         },
         -- Disable automatic handlers - we configure sources manually in none-ls
         handlers = {
