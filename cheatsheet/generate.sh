@@ -26,7 +26,21 @@ RECORD_ONLY=false
 case "${1:-}" in
   --html-only) HTML_ONLY=true ;;
   --record)    RECORD_ONLY=true ;;
+  --help|-h)   echo "Usage: $0 [--html-only|--record]"; exit 0 ;;
+  "")          ;;
+  *)           echo "Unknown option: $1" >&2; exit 1 ;;
 esac
+
+# ── HTML escaping ────────────────────────────────────────────────────────────
+
+escape_html() {
+  local s="$1"
+  s="${s//&/&amp;}"
+  s="${s//</&lt;}"
+  s="${s//>/&gt;}"
+  s="${s//\"/&quot;}"
+  echo "$s"
+}
 
 # ── Collect workflow media ───────────────────────────────────────────────────
 
@@ -44,9 +58,12 @@ collect_workflow_media() {
     title="${title#[0-9][0-9] }"
     title="${title#[0-9][0-9]-}"
 
+    local safe_title safe_basename
+    safe_title=$(escape_html "$title")
+    safe_basename=$(escape_html "$basename")
     html+="<div class=\"workflow-card\">"
-    html+="<h3>${title}</h3>"
-    html+="<img src=\"workflows/$basename\" alt=\"$title\" loading=\"lazy\">"
+    html+="<h3>${safe_title}</h3>"
+    html+="<img src=\"workflows/${safe_basename}\" alt=\"${safe_title}\" loading=\"lazy\">"
     html+="</div>"
   done
 

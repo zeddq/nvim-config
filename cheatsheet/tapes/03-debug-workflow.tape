@@ -28,7 +28,7 @@ Sleep 1s
 
 # Start debugging (F5)
 F5
-Sleep 500ms
+Sleep 2s
 
 # Step over (F10)
 F10
@@ -45,6 +45,11 @@ Sleep 1500ms
 # Toggle DAP UI
 Type " du"
 Sleep 2s
+
+# Terminate debug session before exiting
+Type ":DapTerminate"
+Enter
+Sleep 500ms
 
 Type ":q!"
 Enter
