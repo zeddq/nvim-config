@@ -315,8 +315,8 @@ return {
       })
 
       -- Keymaps for manual formatting
-      vim.keymap.set("n", "<leader>gf", vim.lsp.buf.format, { desc = "Format buffer" })
-      vim.keymap.set("v", "<leader>gf", vim.lsp.buf.format, { desc = "Format selection" })
+      vim.keymap.set("n", "<leader>F", vim.lsp.buf.format, { desc = "Format buffer (none-ls)" })
+      vim.keymap.set("v", "<leader>F", vim.lsp.buf.format, { desc = "Format selection (none-ls)" })
     end,
   },
 

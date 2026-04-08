@@ -117,11 +117,11 @@ return {
 
       vim.keymap.set("n", "<leader>gb", function()
         exec_vcs_cmd(
-          function() run_terminal("git blame " .. vim.fn.expand("%")) end,
+          function() run_terminal("git blame " .. vim.fn.shellescape(vim.fn.expand("%"))) end,
           function()
             -- jj doesn't have built-in blame, use git blame as fallback
             vim.notify("jj doesn't have blame, using git blame", vim.log.levels.INFO)
-            run_terminal("git blame " .. vim.fn.expand("%"))
+            run_terminal("git blame " .. vim.fn.shellescape(vim.fn.expand("%")))
           end
         )
       end, { desc = "VCS Blame" })
@@ -158,14 +158,14 @@ return {
           function()
             vim.ui.input({ prompt = "Branch name: " }, function(input)
               if input and input ~= "" then
-                run_terminal("git checkout -b " .. input)
+                run_terminal("git checkout -b " .. vim.fn.shellescape(input))
               end
             end)
           end,
           function()
             vim.ui.input({ prompt = "Bookmark name: " }, function(input)
               if input and input ~= "" then
-                run_terminal("jj bookmark create " .. input)
+                run_terminal("jj bookmark create " .. vim.fn.shellescape(input))
               end
             end)
           end

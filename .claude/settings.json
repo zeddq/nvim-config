@@ -3,8 +3,22 @@
     "allow": [
       "Bash(nvim --headless:*)",
       "Bash(./tests/run_all_tests.sh:*)",
-      "Bash(./tests/run_single_test.sh:*)"
+      "Bash(./tests/run_single_test.sh:*)",
+      "Bash(./cheatsheet/generate.sh:*)"
     ],
     "deny": []
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if printf '%s' \"$CLAUDE_TOOL_INPUT\" | grep -qE 'git commit|jj commit|jj describe'; then ./cheatsheet/generate.sh --html-only 2>/dev/null; fi"
+          }
+        ]
+      }
+    ]
   }
 }
