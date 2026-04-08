@@ -119,7 +119,7 @@ Tests use a **two-tier model**: unit tests (fast, mocked) and integration tests 
 
 Unit tests run via `nvim --headless --noplugin -u init.lua -l <test_file>`. Integration tests (e.g., `test_jj_integration.lua`) run without `--noplugin` so lazy.nvim can initialize plugins. Results saved to `tests/test_results.txt`.
 
-Unit suites: `test_vcs_detection.lua`, `test_plugin_loading.lua`, `test_commands.lua`, `test_pr_changes_coderabbit.lua`.
+Unit suites: `test_vcs_detection.lua`, `test_plugin_loading.lua`, `test_commands.lua`.
 Integration suite: `test_jj_integration.lua` (real jj.nvim plugin required).
 Mocks: `tests/mocks/jj_mock.lua` — provides fake jj.nvim API for unit tests.
 
@@ -134,7 +134,7 @@ Mocks: `tests/mocks/jj_mock.lua` — provides fake jj.nvim API for unit tests.
 ### Adding a Language Server
 
 1. Add the server to `ensure_installed` in `mason-lspconfig.setup()` in `lua/plugins/lsp.lua`
-2. Add `vim.lsp.config["server_name"] = { capabilities = capabilities, settings = { ... } }` block
+2. Add `vim.lsp.config("server_name", { capabilities = capabilities, settings = { ... } })` block
 3. Add `vim.lsp.enable("server_name")` call
 4. Mason will auto-install on next launch
 
@@ -156,7 +156,7 @@ Mocks: `tests/mocks/jj_mock.lua` — provides fake jj.nvim API for unit tests.
 
 ### Cheatsheet Generation
 
-`cheatsheet/generate.sh` produces a Tokyo Night-themed HTML cheatsheet with all keybindings, LSP architecture, and plugin overview. Regenerated automatically after `git commit`, `jj commit`, or `jj describe` via both a git post-commit hook and a Claude Code `PostToolUse` hook.
+`cheatsheet/generate.sh` produces a Tokyo Night-themed HTML cheatsheet with all keybindings, LSP architecture, and plugin overview. Regenerated automatically after `git commit`, `jj commit`, or `jj describe` via a Claude Code `PostToolUse` hook (see `.claude/settings.json`). An optional git post-commit hook can be installed manually — see `.git/hooks/post-commit`.
 
 ```bash
 ./cheatsheet/generate.sh              # HTML + record VHS tapes (if vhs installed)

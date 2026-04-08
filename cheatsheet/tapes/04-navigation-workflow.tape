@@ -26,8 +26,10 @@ Type ":e lua/config/keymaps.lua"
 Enter
 Sleep 1500ms
 
-# Flash jump (s + chars)
-Type "sfu"
+# Flash jump (s enters flash mode, then type search chars)
+Type "s"
+Sleep 300ms
+Type "fu"
 Sleep 1500ms
 Escape
 Sleep 500ms

@@ -46,11 +46,7 @@ collect_workflow_media() {
 
     html+="<div class=\"workflow-card\">"
     html+="<h3>${title}</h3>"
-    if [[ "$media_file" == *.webp ]]; then
-      html+="<img src=\"workflows/$basename\" alt=\"$title\" loading=\"lazy\">"
-    else
-      html+="<img src=\"workflows/$basename\" alt=\"$title\" loading=\"lazy\">"
-    fi
+    html+="<img src=\"workflows/$basename\" alt=\"$title\" loading=\"lazy\">"
     html+="</div>"
   done
 

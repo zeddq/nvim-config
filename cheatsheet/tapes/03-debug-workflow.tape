@@ -27,15 +27,15 @@ Enter
 Sleep 1s
 
 # Start debugging (F5)
-Type@0ms ""
+F5
 Sleep 500ms
 
 # Step over (F10)
-Type@0ms ""
+F10
 Sleep 1s
 
 # Step into (F11)
-Type@0ms ""
+F11
 Sleep 1s
 
 # Open REPL

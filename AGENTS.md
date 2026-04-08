@@ -89,7 +89,7 @@ This configuration targets Neovim 0.11+. Use current APIs:
 | `vim.hl.on_yank()` | `vim.highlight.on_yank()` (alias, both work) |
 | `vim.diagnostic.jump()` | `vim.diagnostic.goto_next()` (deprecated) |
 | `vim.uv` | `vim.loop` (deprecated) |
-| `vim.lsp.config["name"] = {}` | `lspconfig["name"].setup({})` (old pattern) |
+| `vim.lsp.config("name", { ... })` | `lspconfig["name"].setup({})` (old pattern) |
 | `vim.lsp.enable("name")` | automatic server start via handlers (old pattern) |
 | `LspAttach` autocmd | `on_attach` callback in lspconfig setup |
 
@@ -112,7 +112,7 @@ Tests use a two-tier model: **unit tests** (mocked, `--noplugin`, fast) and **in
 
 Unit tests mock external plugin APIs (e.g., `jj.nvim`) via `tests/mocks/` (e.g., `jj_mock.lua`). Integration tests (e.g., `test_jj_integration.lua`) require real plugins loaded by lazy.nvim. Test files live in `tests/` and use a custom assertion framework (no external test library).
 
-Test suites: `test_vcs_detection.lua`, `test_plugin_loading.lua`, `test_commands.lua`, `test_pr_changes_coderabbit.lua` (unit); `test_jj_integration.lua` (integration).
+Test suites: `test_vcs_detection.lua`, `test_plugin_loading.lua`, `test_commands.lua` (unit); `test_jj_integration.lua` (integration).
 
 ## File Reference
 
