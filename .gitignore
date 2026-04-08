@@ -1,2 +1,7 @@
 # Test artifacts
 tests/test_results.txt
+
+# Generated cheatsheet output (re-generate via ./cheatsheet/generate.sh)
+cheatsheet/index.html
+cheatsheet/workflows/*.webp
+cheatsheet/workflows/*.gif
