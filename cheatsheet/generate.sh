@@ -28,23 +28,6 @@ case "${1:-}" in
   --record)    RECORD_ONLY=true ;;
 esac
 
-# ── Extract keymaps from plugin files ────────────────────────────────────────
-
-extract_keymaps() {
-  local file="$1"
-  local plugin_name="$2"
-
-  # Extract vim.keymap.set and keys = { ... } patterns
-  grep -oE '"<[^"]*>"' "$file" 2>/dev/null | sort -u | while read -r key; do
-    # Find the desc for this keymap
-    local desc
-    desc=$(grep -A2 "$key" "$file" | grep -oP 'desc\s*=\s*"\K[^"]+' | head -1)
-    if [ -n "$desc" ]; then
-      echo "  <tr><td><kbd>${key//\"/}</kbd></td><td>$desc</td><td>$plugin_name</td></tr>"
-    fi
-  done
-}
-
 # ── Collect workflow media ───────────────────────────────────────────────────
 
 collect_workflow_media() {
@@ -191,10 +174,42 @@ $workflow_media
 </div>
 EOF
 
-  # ── VCS Keymaps ──
+  # ── Keybinding Reference ──
   cat >> "$OUTPUT_HTML" << 'EOF'
 <h2>Keybinding Reference</h2>
 <div class="grid">
+
+<div class="section">
+<h3>Global</h3>
+<table>
+<tr><th>Key</th><th>Action</th></tr>
+<tr><td><kbd>Esc</kbd></td><td>Clear search highlight</td></tr>
+<tr><td><kbd>&lt;leader&gt;w</kbd></td><td>Save file</td></tr>
+<tr><td><kbd>Ctrl-h/j/k/l</kbd></td><td>Move between windows</td></tr>
+<tr><td><kbd>Tab</kbd> / <kbd>S-Tab</kbd></td><td>Next / previous buffer</td></tr>
+<tr><td><kbd>&lt;leader&gt;bd</kbd></td><td>Delete buffer</td></tr>
+<tr><td><kbd>&lt;leader&gt;sv</kbd></td><td>Split vertically</td></tr>
+<tr><td><kbd>&lt;leader&gt;sh</kbd></td><td>Split horizontally</td></tr>
+<tr><td><kbd>&lt;leader&gt;?</kbd></td><td>Buffer local keymaps (which-key)</td></tr>
+</table>
+
+<h3>Diagnostics</h3>
+<table>
+<tr><th>Key</th><th>Action</th></tr>
+<tr><td><kbd>[d</kbd> / <kbd>]d</kbd></td><td>Previous / next diagnostic</td></tr>
+<tr><td><kbd>&lt;leader&gt;q</kbd></td><td>Open diagnostic list</td></tr>
+</table>
+
+<h3>Search (Telescope)</h3>
+<table>
+<tr><th>Key</th><th>Action</th></tr>
+<tr><td><kbd>&lt;leader&gt;ff</kbd></td><td>Find files</td></tr>
+<tr><td><kbd>&lt;leader&gt;fg</kbd></td><td>Live grep</td></tr>
+<tr><td><kbd>&lt;leader&gt;fb</kbd></td><td>Find buffers</td></tr>
+<tr><td><kbd>&lt;leader&gt;fh</kbd></td><td>Help tags</td></tr>
+<tr><td><kbd>&lt;leader&gt;fr</kbd></td><td>Registers</td></tr>
+</table>
+</div>
 
 <div class="section">
 <h3>VCS Operations <span class="tag tag-both">git + jj</span></h3>
@@ -210,6 +225,7 @@ EOF
 <tr><td><kbd>&lt;leader&gt;gL</kbd></td><td>List Branches/Bookmarks</td><td>git branch -avv</td><td>jj bookmark list</td></tr>
 <tr><td><kbd>&lt;leader&gt;gp</kbd></td><td>Push</td><td>git push</td><td>jj git push</td></tr>
 <tr><td><kbd>&lt;leader&gt;gP</kbd></td><td>Pull/Fetch</td><td>git pull</td><td>jj git fetch</td></tr>
+<tr><td><kbd>&lt;leader&gt;gf</kbd></td><td>Fetch</td><td>git fetch</td><td>jj git fetch</td></tr>
 <tr><td><kbd>&lt;leader&gt;gR</kbd></td><td>Refresh VCS Cache</td><td colspan="2">Clears detection cache</td></tr>
 <tr><td><kbd>&lt;leader&gt;g?</kbd></td><td>VCS Info</td><td colspan="2">Shows type, root, cache stats</td></tr>
 </table>
@@ -229,7 +245,7 @@ EOF
 <h3>LSP</h3>
 <table>
 <tr><th>Key</th><th>Action</th></tr>
-<tr><td><kbd>gd</kbd> / <kbd>Ctrl-]</kbd></td><td>Go to definition</td></tr>
+<tr><td><kbd>gd</kbd></td><td>Go to definition</td></tr>
 <tr><td><kbd>gD</kbd></td><td>Go to declaration</td></tr>
 <tr><td><kbd>gi</kbd></td><td>Go to implementation</td></tr>
 <tr><td><kbd>gr</kbd></td><td>Show references</td></tr>
@@ -239,12 +255,13 @@ EOF
 <tr><td><kbd>&lt;leader&gt;ca</kbd></td><td>Code action</td></tr>
 <tr><td><kbd>&lt;leader&gt;cf</kbd></td><td>Fix all (Ruff)</td></tr>
 <tr><td><kbd>&lt;leader&gt;co</kbd></td><td>Organize imports</td></tr>
-<tr><td><kbd>&lt;leader&gt;cr</kbd></td><td>Refactor</td></tr>
+<tr><td><kbd>&lt;leader&gt;cr</kbd></td><td>Refactor (via rope)</td></tr>
 <tr><td><kbd>&lt;leader&gt;ce</kbd></td><td>Extract (visual)</td></tr>
 <tr><td><kbd>&lt;leader&gt;cq</kbd></td><td>Quick fix (line)</td></tr>
 <tr><td><kbd>&lt;leader&gt;f</kbd></td><td>Format document</td></tr>
 <tr><td><kbd>&lt;leader&gt;wa</kbd></td><td>Add workspace folder</td></tr>
 <tr><td><kbd>&lt;leader&gt;wr</kbd></td><td>Remove workspace folder</td></tr>
+<tr><td><kbd>&lt;leader&gt;wl</kbd></td><td>List workspace folders</td></tr>
 </table>
 </div>
 
@@ -285,7 +302,16 @@ EOF
 <tr><td><kbd>&lt;leader&gt;sS</kbd></td><td>Select Scratch Buffer</td></tr>
 <tr><td><kbd>&lt;leader&gt;sn</kbd></td><td>Notification History</td></tr>
 <tr><td><kbd>&lt;leader&gt;snd</kbd></td><td>Dismiss Notifications</td></tr>
-<tr><td><kbd>&lt;leader&gt;gB</kbd></td><td>Git Browse (Snacks)</td></tr>
+</table>
+
+<h3>Claude Code</h3>
+<table>
+<tr><th>Key</th><th>Action</th></tr>
+<tr><td><kbd>Ctrl-,</kbd></td><td>Toggle Claude Code</td></tr>
+<tr><td><kbd>&lt;leader&gt;cc</kbd></td><td>Toggle Claude Code</td></tr>
+<tr><td><kbd>&lt;leader&gt;cC</kbd></td><td>Continue conversation</td></tr>
+<tr><td><kbd>&lt;leader&gt;cr</kbd></td><td>Resume conversation (picker)</td></tr>
+<tr><td><kbd>&lt;leader&gt;cv</kbd></td><td>Verbose mode</td></tr>
 </table>
 
 <h3>Completion (nvim-cmp)</h3>
@@ -296,6 +322,24 @@ EOF
 <tr><td><kbd>Enter</kbd></td><td>Confirm selection</td></tr>
 <tr><td><kbd>Ctrl-e</kbd></td><td>Abort completion</td></tr>
 <tr><td><kbd>Ctrl-b</kbd> / <kbd>Ctrl-f</kbd></td><td>Scroll docs</td></tr>
+</table>
+
+<h3>Gitsigns <span class="tag tag-git">git only</span></h3>
+<table>
+<tr><th>Key</th><th>Action</th></tr>
+<tr><td><kbd>&lt;leader&gt;hs</kbd></td><td>Stage hunk</td></tr>
+<tr><td><kbd>&lt;leader&gt;hS</kbd></td><td>Stage buffer</td></tr>
+<tr><td><kbd>&lt;leader&gt;hu</kbd></td><td>Undo stage hunk</td></tr>
+<tr><td><kbd>&lt;leader&gt;tb</kbd></td><td>Toggle line blame</td></tr>
+<tr><td><kbd>&lt;leader&gt;td</kbd></td><td>Toggle deleted</td></tr>
+</table>
+
+<h3>LSP Logging</h3>
+<table>
+<tr><th>Key</th><th>Action</th></tr>
+<tr><td><kbd>&lt;leader&gt;ld</kbd></td><td>Toggle LSP log level</td></tr>
+<tr><td><kbd>&lt;leader&gt;ll</kbd></td><td>Open LSP log</td></tr>
+<tr><td><kbd>&lt;leader&gt;lt</kbd></td><td>Tail LSP log</td></tr>
 </table>
 </div>
 
