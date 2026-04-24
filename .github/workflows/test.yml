@@ -1,0 +1,59 @@
+---
+name: tests
+
+"on":
+  push:
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Neovim
+        uses: rhysd/action-setup-vim@v1
+        with:
+          neovim: true
+          version: stable
+
+      - name: Install jj (macOS)
+        if: runner.os == 'macOS'
+        run: brew install jj
+
+      - name: Cache cargo
+        if: runner.os == 'Linux'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-jj
+
+      - name: Install jj (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          if ! command -v jj >/dev/null 2>&1; then
+            cargo install --locked jj-cli
+          fi
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+
+      - name: Verify toolchain
+        run: |
+          nvim --version | head -n1
+          jj --version
+
+      - name: Run unit tests
+        run: ./tests/run_all_tests.sh
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.os }}
+          path: tests/test_results.txt

@@ -111,10 +111,11 @@ end)
 
 -- Test 6: VCS keymaps module configuration file exists
 test("VCS keymaps module configuration exists", function()
-  local config_path = vim.fn.stdpath("config") .. "/lua/plugins/vcs-keymaps.lua"
+  local repo_root = vim.fn.fnamemodify(debug.getinfo(1, "S").source:sub(2), ":h:h")
+  local config_path = repo_root .. "/lua/plugins/vcs-keymaps.lua"
   local exists = vim.fn.filereadable(config_path) == 1
   if not exists then
-    error("vcs-keymaps.lua not found")
+    error("vcs-keymaps.lua not found at " .. config_path)
   end
 end)
 
