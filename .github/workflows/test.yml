@@ -43,6 +43,11 @@ jobs:
           fi
           echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
 
+      - name: Link checkout as nvim config
+        run: |
+          mkdir -p "$HOME/.config"
+          ln -sfn "$GITHUB_WORKSPACE" "$HOME/.config/nvim"
+
       - name: Verify toolchain
         run: |
           nvim --version | head -n1
