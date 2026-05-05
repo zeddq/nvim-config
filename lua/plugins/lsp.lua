@@ -71,13 +71,23 @@ return {
           local opts = { buffer = bufnr, silent = true }
 
           -- LSP keybindings
-          vim.keymap.set("n", "gd", vim.lsp.buf.definition, vim.tbl_extend("force", opts, { desc = "Go to definition" }))
           vim.keymap.set(
             "n",
-            "gD",
-            vim.lsp.buf.declaration,
-            vim.tbl_extend("force", opts, { desc = "Go to declaration" })
+            "gd",
+            vim.lsp.buf.definition,
+            vim.tbl_extend("force", opts, { desc = "Go to definition" })
           )
+          vim.keymap.set("n", "gD", function()
+            -- Fall back to definition when no attached server advertises
+            -- `declarationProvider` (true for lua_ls, pyright, ruff, etc.).
+            local clients = vim.lsp.get_clients({ bufnr = 0 })
+            for _, c in ipairs(clients) do
+              if c.server_capabilities and c.server_capabilities.declarationProvider then
+                return vim.lsp.buf.declaration()
+              end
+            end
+            vim.lsp.buf.definition()
+          end, vim.tbl_extend("force", opts, { desc = "Go to declaration (falls back to definition)" }))
           vim.keymap.set(
             "n",
             "gi",
@@ -92,7 +102,12 @@ return {
             vim.lsp.buf.signature_help,
             vim.tbl_extend("force", opts, { desc = "Signature help" })
           )
-          vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, vim.tbl_extend("force", opts, { desc = "Rename symbol" }))
+          vim.keymap.set(
+            "n",
+            "<leader>rn",
+            vim.lsp.buf.rename,
+            vim.tbl_extend("force", opts, { desc = "Rename symbol" })
+          )
           vim.keymap.set(
             { "n", "v" },
             "<leader>ca",
@@ -292,27 +307,39 @@ return {
       })
 
       -- lua_ls configuration
+      -- workspace.library has a hard floor here ($VIMRUNTIME + luv/luassert
+      -- stubs) so `vim.*` intellisense works even if lazydev hasn't attached
+      -- yet (ft=lua loading can race LspAttach). lazydev then layers plugin
+      -- libraries on top dynamically.
       vim.lsp.config("lua_ls", {
         capabilities = capabilities,
         settings = {
           Lua = {
             runtime = {
               version = "LuaJIT",
+              path = { "lua/?.lua", "lua/?/init.lua" },
             },
-            diagnostics = {
-              globals = { "vim" },
-            },
+            diagnostics = { globals = { "vim", "Snacks" } },
             workspace = {
+              checkThirdParty = false,
               library = {
                 vim.env.VIMRUNTIME,
                 "${3rd}/luv/library",
                 "${3rd}/luassert/library",
               },
-              checkThirdParty = false,
+              -- Neovim's vimfn.gen.lua (~420 KB) and api.gen.lua (~110 KB)
+              -- exceed lua-language-server's default preloadFileSize of 100 KB
+              -- and would be silently skipped — breaking type info for
+              -- `vim.fn.*` and `vim.api.*`. Bump the ceiling to 2 MB.
+              preloadFileSize = 2000,
+              maxPreload = 10000,
+              -- Test mocks reassign `vim.lsp`, `vim.fn`, etc. to narrow
+              -- stubs. Without ignoring them, lua_ls treats those stubs as
+              -- the authoritative shape of the globals and shadows the
+              -- meta files under $VIMRUNTIME.
+              ignoreDir = { "tests/mocks" },
             },
-            telemetry = {
-              enable = false,
-            },
+            telemetry = { enable = false },
           },
         },
       })
@@ -322,61 +349,61 @@ return {
       if not java_home or java_home == "" then
         vim.notify("JAVA_HOME not set — jdtls will not start", vim.log.levels.WARN)
       else
-      local jdtls_workspace = vim.fn.stdpath("cache") .. "/jdtls/workspace/"
+        local jdtls_workspace = vim.fn.stdpath("cache") .. "/jdtls/workspace/"
 
-      vim.lsp.config("jdtls", {
-        capabilities = capabilities,
-        cmd = {
-          "jdtls",
-          "-data",
-          jdtls_workspace .. vim.fn.fnamemodify(vim.fn.getcwd(), ":p:h:t"),
-        },
-        cmd_env = {
-          JAVA_HOME = java_home,
-        },
-        settings = {
-          java = {
-            home = java_home,
-            configuration = {
-              runtimes = {
-                {
-                  name = "JavaSE-21",
-                  path = java_home,
-                  default = true,
+        vim.lsp.config("jdtls", {
+          capabilities = capabilities,
+          cmd = {
+            "jdtls",
+            "-data",
+            jdtls_workspace .. vim.fn.fnamemodify(vim.fn.getcwd(), ":p:h:t"),
+          },
+          cmd_env = {
+            JAVA_HOME = java_home,
+          },
+          settings = {
+            java = {
+              home = java_home,
+              configuration = {
+                runtimes = {
+                  {
+                    name = "JavaSE-21",
+                    path = java_home,
+                    default = true,
+                  },
+                },
+              },
+              eclipse = { downloadSources = true },
+              maven = { downloadSources = true },
+              signatureHelp = { enabled = true },
+              contentProvider = { preferred = "fernflower" },
+              completion = {
+                favoriteStaticMembers = {
+                  "org.junit.Assert.*",
+                  "org.junit.Assume.*",
+                  "org.junit.jupiter.api.Assertions.*",
+                  "org.mockito.Mockito.*",
+                  "org.mockito.ArgumentMatchers.*",
+                },
+              },
+              sources = {
+                organizeImports = {
+                  starThreshold = 9999,
+                  staticStarThreshold = 9999,
                 },
               },
             },
-            eclipse = { downloadSources = true },
-            maven = { downloadSources = true },
-            signatureHelp = { enabled = true },
-            contentProvider = { preferred = "fernflower" },
-            completion = {
-              favoriteStaticMembers = {
-                "org.junit.Assert.*",
-                "org.junit.Assume.*",
-                "org.junit.jupiter.api.Assertions.*",
-                "org.mockito.Mockito.*",
-                "org.mockito.ArgumentMatchers.*",
-              },
-            },
-            sources = {
-              organizeImports = {
-                starThreshold = 9999,
-                staticStarThreshold = 9999,
-              },
-            },
           },
-        },
-        root_markers = {
-          "pom.xml",
-          "build.gradle",
-          "build.gradle.kts",
-          "settings.gradle",
-          "settings.gradle.kts",
-          ".git",
-        },
-      })
-      vim.lsp.enable("jdtls")
+          root_markers = {
+            "pom.xml",
+            "build.gradle",
+            "build.gradle.kts",
+            "settings.gradle",
+            "settings.gradle.kts",
+            ".git",
+          },
+        })
+        vim.lsp.enable("jdtls")
       end
 
       -- bashls configuration
@@ -415,6 +442,7 @@ return {
       vim.lsp.enable("lua_ls")
       vim.lsp.enable("bashls")
       vim.lsp.enable("taplo")
+      vim.lsp.enable("just")
 
       -- Configure diagnostics (Neovim 0.12+ API with inline sign text)
       vim.diagnostic.config({

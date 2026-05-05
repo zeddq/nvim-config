@@ -1,5 +1,11 @@
 return {
   "javiorfo/nvim-soil",
+  -- Upstream repo (javiorfo/nvim-soil and its dep javiorfo/nvim-nyctophilia)
+  -- is gone from GitHub; lazy.nvim's clone-retry loop on missing repos
+  -- aborts startup with "Too many rounds of missing plugins", which
+  -- breaks later plugin setup (incl. lua_ls workspace.library).
+  -- Re-enable by flipping this flag once a working fork is pinned.
+  enabled = false,
   lazy = true,
   ft = "plantuml",
   config = function()

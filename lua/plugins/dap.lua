@@ -51,7 +51,11 @@ return {
       {
         "<leader>B",
         function()
-          require("dap").set_breakpoint(vim.fn.input("Breakpoint condition: "))
+          vim.ui.input({ prompt = "Breakpoint condition: " }, function(cond)
+            if cond then
+              require("dap").set_breakpoint(cond)
+            end
+          end)
         end,
         desc = "Debug: Set Conditional Breakpoint",
       },
@@ -205,16 +209,28 @@ return {
 
       require("dap-python").setup(get_python_path())
 
+      -- Async prompt helper for DAP `args` resolution. nvim-dap evaluates
+      -- configuration callbacks inside a coroutine, so we can yield until
+      -- vim.ui.input's callback resumes us with the entered string.
+      local function prompt_args(prompt)
+        local co = assert(coroutine.running(), "prompt_args requires coroutine context")
+        vim.ui.input({ prompt = prompt }, function(input)
+          coroutine.resume(co, input)
+        end)
+        local input = coroutine.yield()
+        if not input or input == "" then
+          return {}
+        end
+        return vim.split(input, " +", { trimempty = true })
+      end
+
       -- Python-specific configurations
       table.insert(dap.configurations.python, {
         type = "python",
         request = "launch",
         name = "Launch file with arguments",
         program = "${file}",
-        args = function()
-          local args_string = vim.fn.input("Arguments: ")
-          return vim.split(args_string, " +")
-        end,
+        args = function() return prompt_args("Arguments: ") end,
       })
 
       -- Configure Bash/Zsh debugger
@@ -271,10 +287,7 @@ return {
             pathBash = pathBash,
             pathMkfifo = "mkfifo",
             pathPkill = "pkill",
-            args = function()
-              local args_string = vim.fn.input("Arguments: ")
-              return vim.split(args_string, " +")
-            end,
+            args = function() return prompt_args("Arguments: ") end,
             env = {},
             terminalKind = "integrated",
           },

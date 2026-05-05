@@ -21,11 +21,12 @@ require("lazy").setup({
   -- Order matters: dependencies load first
   { import = "plugins.snacks" }, -- Priority 1000 (QoL enhancements)
   { import = "plugins.jj" }, -- Jujutsu VCS (always loaded)
+  { import = "plugins.window-picker" }, -- Window picker (used in e.g. in NeoTree)
   { import = "plugins.neo-tree" }, -- File explorer with jj support
   { import = "plugins.vcs-keymaps" }, -- Context-aware VCS keybindings
   { import = "plugins.claude-code" }, -- Claude Code AI assistant
   { import = "plugins.lsp" }, -- Language servers
-  { import = "plugins.lazydev" },   -- Neovim Lua API (vim.* completions)
+  { import = "plugins.lazydev" }, -- Neovim Lua API (vim.* completions)
   { import = "plugins.completion" }, -- Autocompletion
   { import = "plugins.treesitter" }, -- Syntax highlighting
   { import = "plugins.none-ls" }, -- Formatting & linting

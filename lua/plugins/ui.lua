@@ -177,6 +177,24 @@ return {
         hl.IncSearch = { bg = c.orange, fg = c.bg, bold = true }
         hl.CursorLine = { bg = c.bg_highlight }
         hl.CursorLineNr = { fg = c.yellow, bold = true }
+
+        -- Treesitter @ capture groups (new nvim-treesitter main-branch parsers
+        -- emit these granular captures). Linking via `hl[...]` survives
+        -- :colorscheme switches because tokyonight re-applies on_highlights.
+        hl["@variable.builtin"] = { fg = c.red, italic = true }       -- self, this, super
+        hl["@variable.parameter"] = { fg = c.yellow }                  -- function params
+        hl["@variable.member"] = { fg = c.green1 }                     -- obj.field
+        hl["@function.builtin"] = { fg = c.blue1, italic = true }      -- print, len
+        hl["@function.call"] = { fg = c.blue }                         -- foo()
+        hl["@keyword.import"] = { fg = c.purple, italic = true }       -- import/from
+        hl["@keyword.return"] = { fg = c.magenta, bold = true }
+        hl["@string.escape"] = { fg = c.magenta }                      -- \n, \t
+        hl["@type.builtin"] = { fg = c.blue1, italic = true }          -- int, str, bool
+        hl["@module"] = { fg = c.cyan }                                -- module/namespace refs
+
+        -- TODO: add your own captures here. Common candidates:
+        --   @constructor, @punctuation.special, @keyword.operator,
+        --   @keyword.exception, @string.regexp, @tag.builtin
       end,
     },
     config = function(_, opts)
@@ -191,6 +209,7 @@ return {
     opts = {
       window = { max_width = 100 },
     },
+    enabled = false,
     config = function(_, opts)
       local r = require("registers")
       -- Apply user options

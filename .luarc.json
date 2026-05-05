@@ -5,12 +5,18 @@
     "lua/?/init.lua"
   ],
   "diagnostics.globals": [
-    "vim"
+    "vim",
+    "Snacks"
   ],
   "workspace.library": [
     "$VIMRUNTIME",
     "${3rd}/luv/library",
     "${3rd}/luassert/library"
   ],
-  "workspace.checkThirdParty": false
+  "workspace.checkThirdParty": false,
+  "workspace.preloadFileSize": 2000,
+  "workspace.maxPreload": 10000,
+  "workspace.ignoreDir": [
+    "tests/mocks"
+  ]
 }
