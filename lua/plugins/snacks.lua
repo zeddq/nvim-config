@@ -2,6 +2,7 @@ return {
   "folke/snacks.nvim",
   priority = 1000,
   lazy = false,
+  ---@type snacks.Config
   opts = {
     bigfile = {
       enabled = true,
@@ -54,7 +55,8 @@ return {
   },
   keys = {
     {
-      "<c-/>",
+      -- "<c-/>",
+      "<leader>z/",
       function()
         Snacks.terminal()
       end,
@@ -69,7 +71,7 @@ return {
       desc = "Notification History",
     },
     {
-      "<leader>snd",
+      "<eleader>snd",
       function()
         Snacks.notifier.hide()
       end,

@@ -60,6 +60,7 @@ return {
       -- LspAttach autocmd for on_attach logic (Neovim 0.12+ pattern)
       vim.api.nvim_create_autocmd("LspAttach", {
         group = vim.api.nvim_create_augroup("UserLspConfig", { clear = true }),
+        ---@param args vim.api.keyset.create_autocmd.callback_args
         callback = function(args)
           local client = vim.lsp.get_client_by_id(args.data.client_id)
           local bufnr = args.buf
@@ -311,8 +312,10 @@ return {
       -- stubs) so `vim.*` intellisense works even if lazydev hasn't attached
       -- yet (ft=lua loading can race LspAttach). lazydev then layers plugin
       -- libraries on top dynamically.
-      vim.lsp.config("lua_ls", {
+      --- @type vim.lsp.Config
+      local luals_cfg = {
         capabilities = capabilities,
+        --- @type lspconfig.settings.lua_ls
         settings = {
           Lua = {
             runtime = {
@@ -342,7 +345,8 @@ return {
             telemetry = { enable = false },
           },
         },
-      })
+      }
+      vim.lsp.config("lua_ls", luals_cfg)
 
       -- jdtls (Java) configuration
       local java_home = vim.env.JAVA_HOME
@@ -463,7 +467,7 @@ return {
         severity_sort = true,
         float = {
           border = "rounded",
-          source = "always",
+          source = true,
           header = "",
           prefix = "",
         },

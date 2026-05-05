@@ -7,11 +7,23 @@ return {
     "nvim-lualine/lualine.nvim",
     dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
+      -- Minuet status component (provider/model, in-flight request count, and
+      -- spinner). Guarded so the statusline still loads if minuet is absent.
+      local ok_minuet, minuet_lualine = pcall(require, "minuet.lualine")
+
+      local lualine_x = { "encoding", "fileformat", "filetype" }
+      if ok_minuet then
+        table.insert(lualine_x, 1, minuet_lualine)
+      end
+
       require("lualine").setup({
         options = {
           theme = "auto",
           component_separators = "|",
           section_separators = "",
+        },
+        sections = {
+          lualine_x = lualine_x,
         },
       })
     end,
@@ -181,16 +193,16 @@ return {
         -- Treesitter @ capture groups (new nvim-treesitter main-branch parsers
         -- emit these granular captures). Linking via `hl[...]` survives
         -- :colorscheme switches because tokyonight re-applies on_highlights.
-        hl["@variable.builtin"] = { fg = c.red, italic = true }       -- self, this, super
-        hl["@variable.parameter"] = { fg = c.yellow }                  -- function params
-        hl["@variable.member"] = { fg = c.green1 }                     -- obj.field
-        hl["@function.builtin"] = { fg = c.blue1, italic = true }      -- print, len
-        hl["@function.call"] = { fg = c.blue }                         -- foo()
-        hl["@keyword.import"] = { fg = c.purple, italic = true }       -- import/from
+        hl["@variable.builtin"] = { fg = c.red, italic = true } -- self, this, super
+        hl["@variable.parameter"] = { fg = c.yellow } -- function params
+        hl["@variable.member"] = { fg = c.green1 } -- obj.field
+        hl["@function.builtin"] = { fg = c.blue1, italic = true } -- print, len
+        hl["@function.call"] = { fg = c.blue } -- foo()
+        hl["@keyword.import"] = { fg = c.purple, italic = true } -- import/from
         hl["@keyword.return"] = { fg = c.magenta, bold = true }
-        hl["@string.escape"] = { fg = c.magenta }                      -- \n, \t
-        hl["@type.builtin"] = { fg = c.blue1, italic = true }          -- int, str, bool
-        hl["@module"] = { fg = c.cyan }                                -- module/namespace refs
+        hl["@string.escape"] = { fg = c.magenta } -- \n, \t
+        hl["@type.builtin"] = { fg = c.blue1, italic = true } -- int, str, bool
+        hl["@module"] = { fg = c.cyan } -- module/namespace refs
 
         -- TODO: add your own captures here. Common candidates:
         --   @constructor, @punctuation.special, @keyword.operator,
@@ -214,7 +226,7 @@ return {
       local r = require("registers")
       -- Apply user options
       r.setup(opts)
-      -- Workaround: ensure popup has a minimum width to avoid errors when all registers are empty
+      -- Workaround: ensure that the popup has a minimum width to avoid errors when all registers are empty
       if type(r._longest_register_length) == "function" then
         local orig = r._longest_register_length
         r._longest_register_length = function()

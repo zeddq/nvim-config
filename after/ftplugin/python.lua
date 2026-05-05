@@ -1,1 +1,1 @@
-require("utils.treesitter").activate({ fold = true })
+require("utils.treesitter").activate({ fold = false, indent = true })

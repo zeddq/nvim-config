@@ -1,22 +1,16 @@
 {
   "runtime.version": "LuaJIT",
-  "runtime.path": [
-    "lua/?.lua",
-    "lua/?/init.lua"
-  ],
-  "diagnostics.globals": [
-    "vim",
-    "Snacks"
-  ],
+  "runtime.path": ["lua/?.lua", "lua/?/init.lua"],
+  "diagnostics.globals": ["vim", "Snacks"],
   "workspace.library": [
     "$VIMRUNTIME",
     "${3rd}/luv/library",
-    "${3rd}/luassert/library"
+    "${3rd}/luassert/library",
+    "/Users/cezary/.local/share/nvim/lazy/nvim-lspconfig/lua/lspconfig/types/lsp",
+    "/Users/cezary/.local/share/nvim/lazy/snacks.nvim/lua/snacks"
   ],
   "workspace.checkThirdParty": false,
   "workspace.preloadFileSize": 2000,
   "workspace.maxPreload": 10000,
-  "workspace.ignoreDir": [
-    "tests/mocks"
-  ]
+  "workspace.ignoreDir": ["tests/mocks"]
 }

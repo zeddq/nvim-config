@@ -5,8 +5,8 @@
 
 return {
   {
-    'mattn/vim-lsp-settings',
-    dependencies = { 'prabirshrestha/vim-lsp' },
+    "mattn/vim-lsp-settings",
+    dependencies = { "prabirshrestha/vim-lsp" },
     init = function()
       -- Prettier configuration for efm-langserver
       local prettierd_candidates = {

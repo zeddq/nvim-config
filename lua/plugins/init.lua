@@ -28,6 +28,7 @@ require("lazy").setup({
   { import = "plugins.lsp" }, -- Language servers
   { import = "plugins.lazydev" }, -- Neovim Lua API (vim.* completions)
   { import = "plugins.completion" }, -- Autocompletion
+  { import = "plugins.minuet" }, -- AI inline (ghost text) completion via Codestral
   { import = "plugins.treesitter" }, -- Syntax highlighting
   { import = "plugins.none-ls" }, -- Formatting & linting
   { import = "plugins.ui" }, -- UI plugins (includes gitsigns)

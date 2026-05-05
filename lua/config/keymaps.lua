@@ -8,6 +8,14 @@ vim.keymap.set("n", "<Esc>", ":nohlsearch<CR>", { silent = true, desc = "Clear s
 vim.keymap.set("n", "<leader>w", ":w<CR>", { desc = "Save file" })
 
 -- Window navigation
+
+-- Arrow keys as recursive aliases of the C-hjkl window nav (remap = true means
+-- <C-Left> resolves to <C-h>, which then follows whatever <C-h> is mapped to).
+vim.keymap.set("n", "<Left>", "h", { remap = true, desc = "left" })
+vim.keymap.set("n", "<Down>", "j", { remap = true, desc = "lower" })
+vim.keymap.set("n", "<Up>", "k", { remap = true, desc = "upper" })
+vim.keymap.set("n", "<Right>", "l", { remap = true, desc = "right" })
+
 vim.keymap.set("n", "<C-h>", "<C-w>h", { desc = "Move to left window" })
 vim.keymap.set("n", "<C-j>", "<C-w>j", { desc = "Move to lower window" })
 vim.keymap.set("n", "<C-k>", "<C-w>k", { desc = "Move to upper window" })
@@ -33,8 +41,12 @@ vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move line down" })
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv", { desc = "Move line up" })
 
 -- Diagnostic keymaps
-vim.keymap.set("n", "[d", function() vim.diagnostic.jump({ count = -1 }) end, { desc = "Go to previous diagnostic" })
-vim.keymap.set("n", "]d", function() vim.diagnostic.jump({ count = 1 }) end, { desc = "Go to next diagnostic" })
+vim.keymap.set("n", "[d", function()
+  vim.diagnostic.jump({ count = -1 })
+end, { desc = "Go to previous diagnostic" })
+vim.keymap.set("n", "]d", function()
+  vim.diagnostic.jump({ count = 1 })
+end, { desc = "Go to next diagnostic" })
 vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { desc = "Open diagnostic float" })
 vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic list" })
 
@@ -58,4 +70,3 @@ vim.api.nvim_create_user_command("LspLogTail", lsp_utils.tail_log, {})
 vim.keymap.set("n", "<leader>ld", lsp_utils.toggle_log_level, { desc = "Toggle LSP log level" })
 vim.keymap.set("n", "<leader>ll", lsp_utils.open_log, { desc = "Open LSP log" })
 vim.keymap.set("n", "<leader>lt", lsp_utils.tail_log, { desc = "Tail LSP log" })
-

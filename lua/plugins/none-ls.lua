@@ -232,7 +232,7 @@ return {
         debug = false,
         sources = {
           -- AppleScript
-          applescript_diagnostics,          -- On-save diagnostics
+          applescript_diagnostics, -- On-save diagnostics
           applescript_diagnostics_realtime, -- Real-time diagnostics while editing
           applescript_formatter,
           applescript_code_actions,

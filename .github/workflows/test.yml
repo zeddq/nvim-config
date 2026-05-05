@@ -51,6 +51,9 @@ jobs:
       - name: Run unit tests
         run: ./tests/run_all_tests.sh
 
+      - name: Headless startup smoke test
+        run: ./tests/headless_startup.sh
+
       - name: Upload test results
         if: failure()
         uses: actions/upload-artifact@v4
