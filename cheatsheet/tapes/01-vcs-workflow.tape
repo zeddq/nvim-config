@@ -13,18 +13,19 @@ Type "nvim"
 Enter
 Sleep 3s
 
-# Show VCS status
+# Show VCS status (jj.nvim opens an hsplit terminal buffer in normal mode)
 Type " gs"
 Sleep 3s
 
-# Close terminal split — must escape terminal mode first (Ctrl+\ Ctrl+N)
+# Close the hsplit. Ctrl+\ Ctrl+N is a no-op here (jj.nvim calls stopinsert),
+# kept as a safety net for pure-git repos where the terminal stays in insert mode.
 Ctrl+\
 Ctrl+n
 Type ":q"
 Enter
 Sleep 500ms
 
-# Show VCS log
+# Show VCS log (hsplit terminal buffer)
 Type " gl"
 Sleep 3s
 Ctrl+\
@@ -33,7 +34,7 @@ Type ":q"
 Enter
 Sleep 500ms
 
-# Show VCS diff
+# Show VCS diff (jj.nvim opens a floating window, not a split)
 Type " gd"
 Sleep 3s
 Ctrl+\

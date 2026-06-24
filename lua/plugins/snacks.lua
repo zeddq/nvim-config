@@ -71,7 +71,7 @@ return {
       desc = "Notification History",
     },
     {
-      "<eleader>snd",
+      "<leader>snd",
       function()
         Snacks.notifier.hide()
       end,

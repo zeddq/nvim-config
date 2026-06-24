@@ -11,7 +11,8 @@ Set TypingSpeed 60ms
 
 Type "nvim cheatsheet/fixtures/example.py"
 Enter
-Sleep 2s
+# Wait for the LSP (basedpyright/ruff) to attach before the first LSP action.
+Sleep 6s
 
 # Go to definition
 Type "gd"
@@ -23,10 +24,12 @@ Sleep 2s
 Escape
 Sleep 500ms
 
-# Show references
+# Show references (populates and opens the quickfix list)
 Type "gr"
 Sleep 2s
-Escape
+# Escape does not close a quickfix window — use :cclose
+Type ":cclose"
+Enter
 Sleep 500ms
 
 # Rename symbol
