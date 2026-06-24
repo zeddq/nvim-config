@@ -1,13 +1,17 @@
 {
+  "$schema": "https://raw.githubusercontent.com/sumneko/vscode-lua/master/setting/schema.json",
   "runtime.version": "LuaJIT",
   "runtime.path": ["lua/?.lua", "lua/?/init.lua"],
-  "diagnostics.globals": ["vim", "Snacks"],
+  "diagnostics.globals": ["vim", "Snacks", "cmp"],
   "workspace.library": [
-    "$VIMRUNTIME",
+    "/opt/homebrew/Cellar/neovim/0.12.4/share/nvim/runtime",
+    "/opt/homebrew/share/nvim/runtime/lua",
     "${3rd}/luv/library",
     "${3rd}/luassert/library",
-    "/Users/cezary/.local/share/nvim/lazy/nvim-lspconfig/lua/lspconfig/types/lsp",
-    "/Users/cezary/.local/share/nvim/lazy/snacks.nvim/lua/snacks"
+    "/Users/cezary/.local/share/nvim/lazy/nvim-lspconfig/lua/lspconfig",
+    "/Users/cezary/.local/share/nvim/lazy/snacks.nvim/lua/snacks",
+    "/Users/cezary/.local/share/nvim/lazy/nvim-cmp",
+    "/Users/cezary/.local/share/nvim/lazy/lazy.nvim"
   ],
   "workspace.checkThirdParty": false,
   "workspace.preloadFileSize": 2000,

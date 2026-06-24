@@ -29,8 +29,13 @@ return {
       })
 
       -- Get capabilities from cmp_nvim_lsp first
-      local capabilities = vim.lsp.protocol.make_client_capabilities()
-      capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
+      -- local capabilities = vim.lsp.protocol.make_client_capabilities()
+      -- capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
+      local capabilities = vim.tbl_deep_extend(
+        "force",
+        vim.lsp.protocol.make_client_capabilities(),
+        require("cmp_nvim_lsp").default_capabilities()
+      )
 
       -- Function to detect Python interpreter
       local function get_python_path()
@@ -277,6 +282,7 @@ return {
       vim.lsp.config("ruff", {
         capabilities = capabilities,
         init_options = {
+          ---@type lspconfig.settings.ruff
           settings = {
             organizeImports = true,
             fixAll = true,
@@ -287,6 +293,7 @@ return {
       -- pylsp configuration (for refactoring with rope and diagnostics with python-lsp-ruff)
       vim.lsp.config("pylsp", {
         capabilities = capabilities,
+        ---@type lspconfig.settings.pylsp
         settings = {
           pylsp = {
             plugins = {
@@ -307,10 +314,10 @@ return {
               jedi_signature_help = { enabled = false },
               jedi_symbols = { enabled = false },
               jedi_definition = { enabled = false },
-              pylint = { enabled = false },
-              flake8 = { enabled = false },
+              pylint = { enabled = true },
+              flake8 = { enabled = true },
               pylsp_mypy = { enabled = false },
-              pydocstyle = { enabled = false },
+              pydocstyle = { enabled = true },
             },
           },
         },
@@ -374,6 +381,7 @@ return {
           cmd_env = {
             JAVA_HOME = java_home,
           },
+          ---@type lspconfig.settings.jdtls
           settings = {
             java = {
               home = java_home,
@@ -422,6 +430,7 @@ return {
       -- bashls configuration
       vim.lsp.config("bashls", {
         capabilities = capabilities,
+        ---@type lspconfig.settings.bashls
         settings = {
           bashIde = {
             globPattern = "*@(.sh|.inc|.bash|.command|.zsh|.zshrc|.zshenv|.zprofile|.zlogin|.zlogout)",
@@ -448,14 +457,87 @@ return {
         },
       })
 
+      vim.lsp.config("rust_analyzer", {
+        capabilities = capabilities,
+      })
+
       -- Enable all configured servers (Neovim 0.12+ API)
-      vim.lsp.enable("basedpyright")
-      vim.lsp.enable("ruff")
-      vim.lsp.enable("pylsp")
-      vim.lsp.enable("lua_ls")
-      vim.lsp.enable("bashls")
-      vim.lsp.enable("taplo")
-      vim.lsp.enable("just")
+      local lsp_servers = {
+        "basedpyright",
+        "ruff",
+        "pylsp",
+        "lua_ls",
+        "bashls",
+        "jdtls",
+        "taplo",
+        "rust_analyzer",
+      }
+      ---returns srv -> key table mapping
+      ---@param srv string
+      ---@return table<string>
+      local keys = vim.tbl_map(function(srv)
+        return "lsp_" .. srv
+      end, lsp_servers)
+
+      -- Generate a list of keys for mapping
+      local keyset = {} ---@type string[]
+      for i = 1, 10, 1 do
+        keyset[#keyset + 1] = tostring(i % 10)
+      end
+      for i = string.byte("a"), string.byte("z") do
+        local char = string.char(i)
+        if char ~= "l" and char ~= "t" then
+          keyset[#keyset + 1] = char
+        end
+      end
+
+      local it, keytab, nextid = ipairs(keyset)
+      local all_lsp_toggles = {} ---@type table<string, snacks.toggle.Class>
+
+      for sid, server in ipairs(lsp_servers) do
+        local key = keys[sid]
+        vim.lsp.enable(server)
+        local t = Snacks.toggle.new({
+          id = key,
+          name = server:sub(1, 1):upper() .. server:sub(2) .. " Toggle",
+
+          ---sets new value
+          ---@param newval boolean
+          set = function(newval)
+            vim.lsp.enable(server, newval)
+          end,
+
+          ---returns current value
+          ---@return boolean
+          get = function()
+            return vim.lsp.is_enabled(server)
+          end,
+        })
+        all_lsp_toggles[key] = t
+
+        local keymap
+        nextid, keymap = it(keytab, nextid)
+        t:map("<leader>tl" .. keymap, { mode = { "n", "v" } })
+      end
+
+      local toggle_all = Snacks.toggle.new({
+        id = "lsp_toggle_all",
+        name = "Toggle All LSPs",
+        get = function()
+          ---gets all enabled servers
+          ---@param toggle snacks.toggle.Class
+          local tmp = vim.tbl_filter(function(toggle)
+            return toggle:get()
+          end, all_lsp_toggles)
+          return #tmp > 0
+        end,
+        set = function(state)
+          for _, t in pairs(all_lsp_toggles) do
+            t:set(state)
+          end
+        end,
+      })
+      toggle_all:map("<leader>tll")
 
       -- Configure diagnostics (Neovim 0.12+ API with inline sign text)
       vim.diagnostic.config({

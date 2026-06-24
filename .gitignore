@@ -5,3 +5,5 @@ tests/test_results.txt
 cheatsheet/index.html
 cheatsheet/workflows/*.webp
 cheatsheet/workflows/*.gif
+.git/
+.jj/

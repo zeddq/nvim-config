@@ -4,6 +4,8 @@
 return {
   {
     "hrsh7th/nvim-cmp",
+    priority = 999,
+    lazy = false,
     dependencies = {
       -- Completion sources
       "hrsh7th/cmp-nvim-lsp",
@@ -28,10 +30,12 @@ return {
       -- Load custom snippets from ~/.config/nvim/snippets/
       require("luasnip.loaders.from_lua").lazy_load({ paths = "~/.config/nvim/snippets" })
 
-      cmp.setup({
+      ---@type cmp.ConfigSchema
+      local cfg = {
         snippet = {
+          ---@param args cmp.SnippetExpansionParams
           expand = function(args)
-            luasnip.lsp_expand(args.body)
+            require("luasnip").lsp_expand(args.body)
           end,
         },
         window = {
@@ -41,7 +45,7 @@ return {
         mapping = cmp.mapping.preset.insert({
           ["<C-b>"] = cmp.mapping.scroll_docs(-4),
           ["<C-f>"] = cmp.mapping.scroll_docs(4),
-          ["<C-;>"] = cmp.mapping.complete(),
+          ["<C-S-Space>"] = cmp.mapping.complete(),
           ["<C-e>"] = cmp.mapping.abort(),
           ["<CR>"] = cmp.mapping.confirm({ select = true }),
 
@@ -66,15 +70,22 @@ return {
             end
           end, { "i", "s" }),
         }),
+
+        ---@type cmp.SourceConfig[]
         sources = cmp.config.sources({
-          { name = "lazydev", group_index = 0 },
           { name = "nvim_lsp" },
+        }, {
+          { name = "lazydev" },
           { name = "luasnip" },
+        }, {
           { name = "path" },
         }, {
           { name = "buffer", keyword_length = 3 },
         }),
         formatting = {
+          ---@param entry cmp.Entry
+          ---@param vim_item vim.CompletedItem
+          ---@return vim.CompletedItem
           format = function(entry, vim_item)
             -- Kind icons
             local icons = {
@@ -116,20 +127,25 @@ return {
             return vim_item
           end,
         },
-      })
+      }
+      cmp.setup(cfg)
 
       -- Command-line completion
       cmp.setup.cmdline(":", {
         mapping = cmp.mapping.preset.cmdline(),
         sources = cmp.config.sources({
           { name = "path" },
-        }, {
           { name = "cmdline" },
+          { name = "nvim_lsp" },
+          { name = "buffer" },
         }),
+        -- upstream cmp.MatchingConfig marks every field required; runtime defaults exist
+        ---@diagnostic disable-next-line: missing-fields
+        matching = { disallow_symbol_nonprefix_matching = false },
       })
 
       -- Search completion
-      cmp.setup.cmdline("/", {
+      cmp.setup.cmdline({ "/", "?" }, {
         mapping = cmp.mapping.preset.cmdline(),
         sources = {
           { name = "buffer" },

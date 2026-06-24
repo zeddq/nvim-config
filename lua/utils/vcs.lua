@@ -7,6 +7,10 @@
 local M = {}
 
 -- Cache configuration
+---@type table<string, {
+---             vcs_type: string,
+---             root: string|nil,
+---             timestamp: number }>
 local cache = {}
 local CACHE_TTL = 5000 -- 5 seconds in milliseconds
 local MAX_DEPTH = 100 -- Maximum directory traversal depth

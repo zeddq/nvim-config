@@ -5,6 +5,10 @@
 
 local M = {}
 
+function M.calc_indent()
+  return math.max(0, vim.treesitter.foldexpr() - 3)
+end
+
 ---@param opts? { fold?: boolean, indent?: boolean }
 function M.activate(opts)
   opts = opts or {}

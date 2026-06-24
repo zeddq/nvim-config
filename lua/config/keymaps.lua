@@ -29,10 +29,13 @@ vim.keymap.set("n", "k", function()
   return vim.v.count == 0 and "gk" or "k"
 end, { expr = true, silent = true, desc = "Up (visual line if no count)" })
 
+vim.keymap.set("x", "<Up>", "<C-o>gk", { desc = "Move up in insert mode" })
+vim.keymap.set("x", "<Down>", "<C-o>gj", { desc = "Move down in insert mode" })
+
 -- Buffer navigation
-vim.keymap.set("n", "<Tab>", ":bnext<CR>", { desc = "Next buffer" })
-vim.keymap.set("n", "<S-Tab>", ":bprevious<CR>", { desc = "Previous buffer" })
-vim.keymap.set("n", "<leader>bd", ":bdelete<CR>", { desc = "Delete buffer" })
+vim.keymap.set("n", "<Tab>", "<Cmd>bnext<CR>", { desc = "Next buffer" })
+vim.keymap.set("n", "<S-Tab>", "<Cmd>bprevious<CR>", { desc = "Previous buffer" })
+vim.keymap.set("n", "<leader>bd", "<Cmd>bdelete<CR>", { desc = "Delete buffer" })
 
 -- Visual mode improvements
 vim.keymap.set("v", "<", "<gv", { desc = "Indent left and stay in visual mode" })

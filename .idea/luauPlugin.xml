@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="LuauPluginSettings">
+    <option name="lspInlayHintsFunctionReturnTypes" value="true" />
+    <option name="lspInlayHintsHideForErrorTypes" value="true" />
+    <option name="lspInlayHintsParameterNames" value="All" />
+    <option name="lspInlayHintsParameterTypes" value="true" />
+    <option name="lspInlayHintsVariableTypes" value="true" />
+    <option name="lspSourcemapGenerationType" value="Manual" />
+    <option name="lspSourcemapSupportEnabled" value="false" />
+    <option name="runStyLua" value="RunOnSave" />
+    <option name="useLuauExtension" value="false" />
+  </component>
+</project>

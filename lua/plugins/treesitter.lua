@@ -18,9 +18,22 @@ return {
       local nts = require("nvim-treesitter")
 
       local ensure = {
-        "python", "lua", "vim", "vimdoc", "query",
-        "typescript", "javascript", "tsx",
-        "markdown", "markdown_inline", "json",
+        "python",
+        "lua",
+        "vim",
+        "vimdoc",
+        "query",
+        "typescript",
+        "javascript",
+        "tsx",
+        "markdown",
+        "markdown_inline",
+        "json",
+        "yaml",
+        "bash",
+        "zsh",
+        "gitignore",
+        "go",
       }
       nts.install(ensure)
 

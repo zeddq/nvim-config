@@ -24,12 +24,12 @@ return {
         n_completions = 1,
 
         -- Chars of surrounding code (prefix + suffix) sent as FIM context.
-        context_window = 16000,
+        context_window = 10000,
 
         -- Auto-trigger pacing (ms): throttle = min gap between requests,
         -- debounce = wait for typing to settle before firing.
         throttle = 1000,
-        debounce = 400,
+        debounce = 1000,
 
         provider_options = {
           codestral = {
@@ -49,14 +49,20 @@ return {
         virtualtext = {
           -- Ghost text in every filetype. Restrict to a list to narrow scope,
           -- e.g. { "lua", "python", "rust" }.
-          auto_trigger_ft = { "*" },
+          auto_trigger_ft = { "lua", "python", "ts*", "js*" },
+          -- ...except special/scratch buffers where as-you-type ghost text is
+          -- noise (and fires API calls on every keystroke). neorepl runs its
+          -- own <Tab> completion; this is the reliable place to opt it out,
+          -- since minuet's own `FileType *` autocmd would re-enable the buffer
+          -- var after after/ftplugin/neorepl.lua runs.
+          auto_trigger_ignore_ft = { "neorepl" },
           keymap = {
-            accept = "<A-Tab>", -- accept the whole suggestion
-            accept_line = "<A-a>", -- accept one line
-            accept_n_lines = "<A-z>", -- accept N lines (prompts for count)
-            next = "<A-]>", -- cycle to next completion
-            prev = "<A-[>", -- cycle to previous completion
-            dismiss = "<A-e>", -- dismiss current ghost text
+            accept = "<M-C-a>", -- accept the whole suggestion
+            accept_line = "<M-a>", -- accept one line
+            accept_n_lines = "<M-z>", -- accept N lines (prompts for count)
+            next = "<M-]>", -- cycle to next completion
+            prev = "<M-[>", -- cycle to previous completion
+            dismiss = "<M-e>", -- dismiss current ghost text
           },
         },
       })
@@ -77,8 +83,11 @@ return {
         local visible = require("minuet.virtualtext").action.is_visible()
         local cfg = require("minuet").config
         vim.notify(
-          ("Minuet | provider: %s | ghost text visible: %s | requests: %d")
-            :format(cfg.provider, tostring(visible), request_count),
+          ("Minuet | provider: %s | ghost text visible: %s | requests: %d"):format(
+            cfg.provider,
+            tostring(visible),
+            request_count
+          ),
           vim.log.levels.INFO
         )
       end, { desc = "Minuet: show session status" })
@@ -95,24 +104,9 @@ return {
         "<cmd>Minuet virtualtext toggle<cr>",
         { desc = "Minuet: toggle inline completion" }
       )
-      vim.keymap.set(
-        "n",
-        "<leader>am",
-        "<cmd>Minuet change_model<cr>",
-        { desc = "Minuet: change model" }
-      )
-      vim.keymap.set(
-        "n",
-        "<leader>as",
-        "<cmd>MinuetStatus<cr>",
-        { desc = "Minuet: status" }
-      )
-      vim.keymap.set(
-        "n",
-        "<leader>ac",
-        "<cmd>MinuetRequestCount<cr>",
-        { desc = "Minuet: request count" }
-      )
+      vim.keymap.set("n", "<leader>am", "<cmd>Minuet change_model<cr>", { desc = "Minuet: change model" })
+      vim.keymap.set("n", "<leader>as", "<cmd>MinuetStatus<cr>", { desc = "Minuet: status" })
+      vim.keymap.set("n", "<leader>ac", "<cmd>MinuetRequestCount<cr>", { desc = "Minuet: request count" })
     end,
   },
 }
