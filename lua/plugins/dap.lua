@@ -241,9 +241,10 @@ return {
 
       if vim.fn.executable(bash_debug_adapter_bin) == 1 then
         local bashdb_dir = bash_debug_adapter_path .. "/extension/bashdb_dir"
-        local pathBash = vim.fn.executable("/opt/homebrew/bin/bash") == 1
-            and "/opt/homebrew/bin/bash"
-          or "/bin/bash"
+        local pathBash = vim.fn.exepath("bash")
+        if pathBash == "" then
+          pathBash = "/bin/bash"
+        end
 
         dap.adapters.bashdb = {
           type = "executable",
