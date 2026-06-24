@@ -113,6 +113,13 @@ test("basedpyright config has settings.basedpyright.analysis", function()
     "basedpyright analysis settings missing")
 end)
 
+test("basedpyright pythonPath fallback is non-empty", function()
+  local cfg = captured_configs["basedpyright"]
+  local python_path = cfg.settings and cfg.settings.python and cfg.settings.python.pythonPath
+  assert_true(type(python_path) == "string" and python_path ~= "",
+    "basedpyright python.pythonPath should never be an empty exepath result")
+end)
+
 test("lua_ls integrates with lazydev-compatible workspace library", function()
   local cfg = captured_configs["lua_ls"]
   local lib = cfg.settings and cfg.settings.Lua and cfg.settings.Lua.workspace

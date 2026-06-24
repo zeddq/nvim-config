@@ -60,6 +60,7 @@ end)
 test("DAP config registers bash adapter when bash-debug-adapter is executable", function()
   -- Install rich mocks for the dap ecosystem.
   local orig_executable = vim.fn.executable
+  local orig_exepath = vim.fn.exepath
   local orig_sign_define = vim.fn.sign_define
   local orig_notify = vim.notify
   local orig_popen = io.popen
@@ -100,12 +101,18 @@ test("DAP config registers bash adapter when bash-debug-adapter is executable", 
     return { setup = function(p) dap_python_setup_arg = p end }
   end
 
-  -- Force bash-debug-adapter and homebrew bash to "exist"
+  -- Force bash-debug-adapter to "exist"; bash itself should be resolved from PATH.
   vim.fn.executable = function(path)
-    if type(path) == "string" and (path:match("bash%-debug%-adapter") or path == "/opt/homebrew/bin/bash") then
+    if type(path) == "string" and path:match("bash%-debug%-adapter") then
       return 1
     end
     return 0
+  end
+  vim.fn.exepath = function(name)
+    if name == "bash" then
+      return "/mock/bin/bash"
+    end
+    return ""
   end
   vim.fn.sign_define = function() return 0 end
   vim.notify = function() end
@@ -115,6 +122,7 @@ test("DAP config registers bash adapter when bash-debug-adapter is executable", 
 
   local restore = function()
     vim.fn.executable = orig_executable
+    vim.fn.exepath = orig_exepath
     vim.fn.sign_define = orig_sign_define
     vim.notify = orig_notify
     io.popen = orig_popen
@@ -150,8 +158,8 @@ test("DAP config registers bash adapter when bash-debug-adapter is executable", 
   local cfg = dap_mock.configurations.sh[1]
   assert_eq(cfg.type, "bashdb", "sh config should use bashdb adapter")
   assert_eq(type(cfg.cwd), "function", "cwd should be a function (resolved at launch time)")
-  assert_eq(cfg.pathBash, "/opt/homebrew/bin/bash",
-    "homebrew bash path should be preferred when available")
+  assert_eq(cfg.pathBash, "/mock/bin/bash",
+    "bash path should be resolved from PATH with vim.fn.exepath")
 end)
 
 test("DAP config skips bash adapter when bash-debug-adapter missing", function()
@@ -220,25 +228,41 @@ end)
 -- ── Treesitter ────────────────────────────────────────────────────────────────
 test("Treesitter config keeps expected language set", function()
   local treesitter_spec = require("plugins.treesitter")[1]
-  local captured
+  local installed
 
-  local orig_ts_configs = package.loaded["nvim-treesitter.configs"]
-  package.loaded["nvim-treesitter.configs"] = {
-    setup = function(opts) captured = opts end,
-  }
+  local orig_ts = package.loaded["nvim-treesitter"]
+  local orig_preload_ts = package.preload["nvim-treesitter"]
+  local orig_create_autocmd = vim.api.nvim_create_autocmd
+  local orig_create_augroup = vim.api.nvim_create_augroup
 
-  local ok, err = pcall(treesitter_spec.config)
+  package.loaded["nvim-treesitter"] = nil
+  package.preload["nvim-treesitter"] = function()
+    return {
+      install = function(langs)
+        installed = langs
+        return {
+          await = function() end,
+        }
+      end,
+      indentexpr = function() return "" end,
+    }
+  end
+  vim.api.nvim_create_autocmd = function() return 1 end
+  vim.api.nvim_create_augroup = function() return 1 end
 
-  package.loaded["nvim-treesitter.configs"] = orig_ts_configs
+  local ok, err = xpcall(treesitter_spec.config, debug.traceback)
+
+  package.loaded["nvim-treesitter"] = orig_ts
+  package.preload["nvim-treesitter"] = orig_preload_ts
+  vim.api.nvim_create_autocmd = orig_create_autocmd
+  vim.api.nvim_create_augroup = orig_create_augroup
 
   if not ok then error(err) end
 
-  assert_true(type(captured) == "table", "Treesitter config should call setup")
-  local ensure = captured.ensure_installed or {}
+  assert_true(type(installed) == "table", "Treesitter config should call install")
   for _, lang in ipairs({ "python", "lua", "vim", "vimdoc", "query" }) do
-    assert_true(vim.tbl_contains(ensure, lang), "ensure_installed should include " .. lang)
+    assert_true(vim.tbl_contains(installed, lang), "install list should include " .. lang)
   end
-  assert_eq(captured.auto_install, true, "auto_install should be enabled")
 end)
 
 -- ── JJ plugin keymaps ─────────────────────────────────────────────────────────

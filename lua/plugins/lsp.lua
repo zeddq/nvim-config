@@ -53,8 +53,17 @@ return {
           end
         end
 
-        -- Fallback to system python
-        return vim.fn.exepath("python3") or vim.fn.exepath("python") or "python"
+        -- Fallback to system Python. `exepath()` returns an empty string when
+        -- missing, and empty strings are truthy in Lua.
+        local python3 = vim.fn.exepath("python3")
+        if python3 ~= "" then
+          return python3
+        end
+        local python = vim.fn.exepath("python")
+        if python ~= "" then
+          return python
+        end
+        return "python"
       end
 
       -- LspAttach autocmd for on_attach logic (Neovim 0.12+ pattern)
