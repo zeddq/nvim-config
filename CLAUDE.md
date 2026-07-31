@@ -127,6 +127,17 @@ Unit suites: `test_vcs_detection.lua`, `test_plugin_loading.lua`, `test_commands
 Integration suite: `test_jj_integration.lua` (real jj.nvim plugin required).
 Mocks: `tests/mocks/jj_mock.lua` — provides fake jj.nvim API for unit tests.
 
+To check whether a failure is a regression, baseline against `HEAD` in a throwaway worktree:
+`git worktree add --detach /tmp/base HEAD && (cd /tmp/base && ./tests/run_single_test.sh tests/<file>.lua)`
+
+### Headless Neovim Gotchas
+
+- **`nvim -l script.lua` does NOT source `init.lua`** — lazy.nvim never bootstraps, so no plugin or LSP exists. Use the arglist form: `nvim --headless <files> -c 'luafile scripts/foo.lua'`, reading targets from `vim.fn.argv()`.
+- **lazy.nvim swallows `config()` errors into `vim.notify`**, which has no sink in headless mode — startup exits 0 with the plugin fully broken. Assert on observable state (`vim.lsp.get_clients()`), never on exit code alone.
+- **Don't use early-exit predicates when probing LSP attach.** `vim.wait(ms, function() return #clients >= 4 end)` returns on the fast servers; `basedpyright`/`pylsp` take ~12s and look broken. Wait the full duration.
+- **`scripts/format_lua.lua`** formats via `vim.lsp.buf.format()` through the real editor path — use it to verify format-on-save behaviour.
+- LSP log: `~/.local/state/nvim/lsp.log`. Grows to multiple MB and retains entries from older Neovim versions — move it aside before debugging or you'll read stale crashes.
+
 ## Cheatsheet Generation
 
 The cheatsheet is a Tokyo Night-themed HTML reference of all keybindings, LSP architecture, and plugins.
@@ -157,9 +168,11 @@ Generated output (`cheatsheet/index.html`, `cheatsheet/workflows/`) is gitignore
 ### Adding a Language Server
 
 1. Add the server to `ensure_installed` in `mason-lspconfig.setup()` in `lua/plugins/lsp.lua`
-2. Add `vim.lsp.config("server_name", { capabilities = capabilities, settings = { ... } })` block
-3. Add `vim.lsp.enable("server_name")` call
+2. Add `register_server("server_name", { capabilities = capabilities, settings = { ... } })` — this records it in `lsp_servers`; the loop below enables it and builds its `<leader>tl<key>` toggle automatically
+3. Never set `cmd` unless overriding — `vim.lsp.config()` merges over nvim-lspconfig's `lsp/<name>.lua`, which has the right binary. LSP names ≠ binary names (`lua_ls` → `lua-language-server`)
 4. Mason will auto-install on next launch
+
+`mason-lspconfig` runs with `automatic_enable = false`: `register_server()` is the only thing that starts a server. Without it, every installed Mason package with an lspconfig entry auto-enables (pyright racing basedpyright, stylua duplicating none-ls).
 
 ### Modifying Keymaps
 
