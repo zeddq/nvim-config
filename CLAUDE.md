@@ -107,6 +107,7 @@ Other servers: `lua_ls` (with lazydev.nvim workspace management), `bashls`, `jdt
 - **Utils modules**: Access via `require("utils.vcs")`, `require("utils.lsp")`, etc.
 - **VCS detection**: Always use `require("utils.vcs").detect_vcs_type()` — never check `.git`/`.jj` directly.
 - **Leader key**: Space (`<Space>`) for global leader, backslash (`\`) for local leader.
+- **cmp sources**: keep `sources` a flat list with an explicit `group_index` on every entry. `cmp.config.sources(g1, g2, ...)` force-assigns `group_index = <arg position>`, silently clobbering lazydev's required `group_index = 0`.
 
 ## Test Execution
 

@@ -71,6 +71,10 @@ Access via `require("utils.vcs")`, `require("utils.lsp")`, etc.
 
 Lua is formatted by stylua, configured in `stylua.toml` at the repo root (2-space, 120 col). The same file is read by the stylua CLI, by none-ls, and by the JetBrains Luau plugin. Never pass `extra_args` from none-ls — stylua's CLI flags override the config file and desync the editor from CI. Verify with `stylua --check .`.
 
+### cmp Source Groups
+
+Keep `sources` in `lua/plugins/completion.lua` a flat list with an explicit `group_index` on every entry. `cmp.config.sources(g1, g2, ...)` force-assigns `group_index = <arg position>`, silently clobbering lazydev's required `group_index = 0` (which makes lazydev supersede `lua_ls` rather than rank beside it).
+
 ## Architecture: VCS Duality
 
 The defining architectural feature is dual Git/Jujutsu support:

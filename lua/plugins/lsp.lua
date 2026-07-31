@@ -380,7 +380,7 @@ return {
             workspace = {
               checkThirdParty = false,
               library = {
-                vim.env.VIMRUNTIME,
+                vim.env.VIMRUNTIME --[[@as string]],
                 "${3rd}/luv/library",
                 "${3rd}/luassert/library",
               },

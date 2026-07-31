@@ -7,3 +7,4 @@ cheatsheet/workflows/*.webp
 cheatsheet/workflows/*.gif
 .git/
 .jj/
+.idea/

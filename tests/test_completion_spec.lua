@@ -1,8 +1,9 @@
 -- Test Suite: Completion (nvim-cmp) Plugin Spec
 -- Stubs `cmp`, `luasnip`, `cmp_luasnip`, and the luasnip vscode/lua
 -- loaders. Captures cmp.setup(opts), asserts sources include LSP,
--- lazydev, luasnip, buffer, path, and that <C-;> is present in the
--- mapping table (per ~/.claude memory: this keybind is intentional).
+-- lazydev, luasnip, buffer, path, and that <C-S-Space> is present in the
+-- mapping table (the intentional manual-completion trigger; plain
+-- <C-Space> is deliberately unmapped).
 
 local script_dir = debug.getinfo(1, "S").source:match("@(.*/)")
 package.path = script_dir .. "?.lua;" .. script_dir .. "?/init.lua;" .. package.path
@@ -208,21 +209,24 @@ test("buffer source uses keyword_length >= 3", function()
   error("buffer source not found")
 end)
 
-test("<C-;> is present in opts.mapping (intentional completion keybind)", function()
+test("<C-S-Space> is present in opts.mapping (manual completion trigger)", function()
+  -- Was <C-;> until 2026-07-31, when it was deliberately rebound to
+  -- <C-S-Space>. Plain <C-Space> is still off-limits (asserted below).
   local mapping = opts.mapping
   assert_true(type(mapping) == "table", "opts.mapping must be a table")
   assert_true(
-    mapping["<C-;>"] ~= nil,
-    "<C-;> must be present in cmp mapping (per user memory: do not change to <C-Space>)"
+    mapping["<C-S-Space>"] ~= nil,
+    "<C-S-Space> must be present in cmp mapping as the manual completion trigger"
   )
 end)
 
-test("<C-Space> is NOT silently used in place of <C-;>", function()
-  -- Defensive: ensure <C-Space> isn't mapped to cmp.complete — the user
-  -- memory explicitly says "don't change to <C-Space>".
+test("<C-Space> is NOT silently used as the completion trigger", function()
+  -- Defensive: ensure plain <C-Space> isn't mapped to cmp.complete. The
+  -- specific chord has changed once (<C-;> -> <C-S-Space>), but "not plain
+  -- <C-Space>" has held throughout.
   local mapping = opts.mapping
   if mapping["<C-Space>"] ~= nil then
-    error("<C-Space> should NOT be mapped — user prefers <C-;> for cmp.complete")
+    error("<C-Space> should NOT be mapped — use <C-S-Space> for cmp.complete")
   end
 end)
 
@@ -240,13 +244,22 @@ test("opts.snippet.expand is configured", function()
   )
 end)
 
-test("cmp.setup.cmdline was called for ':' and '/'", function()
+test("cmp.setup.cmdline was called for ':', '/' and '?'", function()
+  -- cmp.setup.cmdline accepts either a single channel string or a list of
+  -- them, so flatten both shapes before asserting.
   local channels = {}
   for _, c in ipairs(cmp_cmdline_setup_calls) do
-    channels[c.channel] = true
+    if type(c.channel) == "table" then
+      for _, ch in ipairs(c.channel) do
+        channels[ch] = true
+      end
+    else
+      channels[c.channel] = true
+    end
   end
   assert_true(channels[":"], "cmp.setup.cmdline(':', ...) should be called")
   assert_true(channels["/"], "cmp.setup.cmdline('/', ...) should be called")
+  assert_true(channels["?"], "cmp.setup.cmdline('?', ...) should be called (reverse search)")
 end)
 
 -- ============================================================================
