@@ -67,6 +67,10 @@ return M
 
 Access via `require("utils.vcs")`, `require("utils.lsp")`, etc.
 
+### Formatting
+
+Lua is formatted by stylua, configured in `stylua.toml` at the repo root (2-space, 120 col). The same file is read by the stylua CLI, by none-ls, and by the JetBrains Luau plugin. Never pass `extra_args` from none-ls — stylua's CLI flags override the config file and desync the editor from CI. Verify with `stylua --check .`.
+
 ## Architecture: VCS Duality
 
 The defining architectural feature is dual Git/Jujutsu support:
@@ -121,6 +125,7 @@ Unit tests mock external plugin APIs (e.g., `jj.nvim`) via `tests/mocks/`. Integ
 | Path | Purpose |
 | --- | --- |
 | `init.lua` | Entry point — loads config then plugins |
+| `stylua.toml` | Lua formatter config (2-space, 120 col) — read by CLI, none-ls, and JetBrains |
 | `lua/config/options.lua` | Editor settings (numbers, search, indent) |
 | `lua/config/keymaps.lua` | Global keybindings |
 | `lua/config/autocmds.lua` | Autocommands |
@@ -133,5 +138,6 @@ Unit tests mock external plugin APIs (e.g., `jj.nvim`) via `tests/mocks/`. Integ
 | `docs/` | Extended docs (JJ_INTEGRATION, SNACKS) |
 | `scripts/setup.sh` | Install git hooks (symlinks into `.git/hooks/`) |
 | `scripts/post-commit` | Git hook: regenerate cheatsheet after commit |
+| `scripts/format_lua.lua` | Headless formatter driver (`nvim --headless <files> -c 'luafile ...'`) |
 | `cheatsheet/generate.sh` | HTML cheatsheet generator (`--html-only`, `--record`) |
 | `cheatsheet/tapes/` | VHS tape files for animated workflow demos |

@@ -9,25 +9,25 @@ local results = {
   passed = 0,
   failed = 0,
   skipped = 0,
-  tests = {}
+  tests = {},
 }
 
 local function test(name, fn)
   local ok, err = pcall(fn)
   if ok then
     results.passed = results.passed + 1
-    table.insert(results.tests, {name = name, status = "PASS"})
+    table.insert(results.tests, { name = name, status = "PASS" })
     print(string.format("✓ %s", name))
   else
     results.failed = results.failed + 1
-    table.insert(results.tests, {name = name, status = "FAIL", error = tostring(err)})
+    table.insert(results.tests, { name = name, status = "FAIL", error = tostring(err) })
     print(string.format("✗ %s: %s", name, err))
   end
 end
 
 local function skip(name, reason)
   results.skipped = results.skipped + 1
-  table.insert(results.tests, {name = name, status = "SKIP", reason = reason})
+  table.insert(results.tests, { name = name, status = "SKIP", reason = reason })
   print(string.format("⊘ %s: %s", name, reason))
 end
 
@@ -87,8 +87,13 @@ end)
 test("JJ user commands match implementation", function()
   local commands = vim.api.nvim_get_commands({})
   local optional_commands = {
-    "JJStatus", "JJLog", "JJDescribe",
-    "JJNew", "JJEdit", "JJDiff", "JJSquash"
+    "JJStatus",
+    "JJLog",
+    "JJDescribe",
+    "JJNew",
+    "JJEdit",
+    "JJDiff",
+    "JJSquash",
   }
 
   local found = 0

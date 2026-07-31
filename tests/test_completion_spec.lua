@@ -23,7 +23,9 @@ local function test(name, fn)
 end
 
 local function assert_true(cond, msg)
-  if not cond then error(msg or "Expected truthy") end
+  if not cond then
+    error(msg or "Expected truthy")
+  end
 end
 
 local function assert_eq(a, b, msg)
@@ -70,7 +72,9 @@ local cmp_mock = {
       return merged
     end,
     window = {
-      bordered = function() return { _bordered = true } end,
+      bordered = function()
+        return { _bordered = true }
+      end,
     },
   },
   mapping = setmetatable({}, {
@@ -82,8 +86,12 @@ local cmp_mock = {
       -- e.g. cmp.mapping.preset.insert, cmp.mapping.complete, scroll_docs, abort, confirm
       if key == "preset" then
         return {
-          insert = function(overrides) return overrides end,
-          cmdline = function(overrides) return overrides or {} end,
+          insert = function(overrides)
+            return overrides
+          end,
+          cmdline = function(overrides)
+            return overrides or {}
+          end,
         }
       end
       -- generic: return a function factory
@@ -92,16 +100,22 @@ local cmp_mock = {
       end
     end,
   }),
-  visible = function() return false end,
+  visible = function()
+    return false
+  end,
   select_next_item = function() end,
   select_prev_item = function() end,
 }
 
 local luasnip_mock = {
   lsp_expand = function() end,
-  expand_or_jumpable = function() return false end,
+  expand_or_jumpable = function()
+    return false
+  end,
   expand_or_jump = function() end,
-  jumpable = function() return false end,
+  jumpable = function()
+    return false
+  end,
   jump = function() end,
   loaders = {},
 }
@@ -113,15 +127,21 @@ package.loaded["luasnip.loaders.from_vscode"] = nil
 package.loaded["luasnip.loaders.from_lua"] = nil
 package.loaded["cmp_luasnip"] = nil
 
-package.preload["cmp"] = function() return cmp_mock end
-package.preload["luasnip"] = function() return luasnip_mock end
+package.preload["cmp"] = function()
+  return cmp_mock
+end
+package.preload["luasnip"] = function()
+  return luasnip_mock
+end
 package.preload["luasnip.loaders.from_vscode"] = function()
   return { lazy_load = function() end }
 end
 package.preload["luasnip.loaders.from_lua"] = function()
   return { lazy_load = function() end }
 end
-package.preload["cmp_luasnip"] = function() return {} end
+package.preload["cmp_luasnip"] = function()
+  return {}
+end
 
 -- ============================================================================
 -- Load and execute the spec
@@ -134,7 +154,9 @@ assert(type(entry.config) == "function", "completion spec config must be a funct
 
 local config_ok, config_err = pcall(entry.config, entry, entry.opts or {})
 test("completion config() executes without error", function()
-  if not config_ok then error("config() failed: " .. tostring(config_err)) end
+  if not config_ok then
+    error("config() failed: " .. tostring(config_err))
+  end
 end)
 
 test("cmp.setup was called", function()
@@ -153,7 +175,9 @@ test("cmp.setup opts.sources contains nvim_lsp, lazydev, luasnip, buffer, path",
   assert_true(type(sources) == "table", "opts.sources must be a table")
   local names = {}
   for _, s in ipairs(sources) do
-    if s.name then names[s.name] = true end
+    if s.name then
+      names[s.name] = true
+    end
   end
   local required = { "nvim_lsp", "lazydev", "luasnip", "buffer", "path" }
   for _, n in ipairs(required) do
@@ -174,8 +198,10 @@ end)
 test("buffer source uses keyword_length >= 3", function()
   for _, s in ipairs(opts.sources) do
     if s.name == "buffer" then
-      assert_true(type(s.keyword_length) == "number" and s.keyword_length >= 3,
-        "buffer source should have keyword_length >= 3")
+      assert_true(
+        type(s.keyword_length) == "number" and s.keyword_length >= 3,
+        "buffer source should have keyword_length >= 3"
+      )
       return
     end
   end
@@ -185,8 +211,10 @@ end)
 test("<C-;> is present in opts.mapping (intentional completion keybind)", function()
   local mapping = opts.mapping
   assert_true(type(mapping) == "table", "opts.mapping must be a table")
-  assert_true(mapping["<C-;>"] ~= nil,
-    "<C-;> must be present in cmp mapping (per user memory: do not change to <C-Space>)")
+  assert_true(
+    mapping["<C-;>"] ~= nil,
+    "<C-;> must be present in cmp mapping (per user memory: do not change to <C-Space>)"
+  )
 end)
 
 test("<C-Space> is NOT silently used in place of <C-;>", function()
@@ -206,8 +234,10 @@ test("opts.mapping includes <CR> confirm, <Tab>, <S-Tab>", function()
 end)
 
 test("opts.snippet.expand is configured", function()
-  assert_true(type(opts.snippet) == "table" and type(opts.snippet.expand) == "function",
-    "opts.snippet.expand must be a function")
+  assert_true(
+    type(opts.snippet) == "table" and type(opts.snippet.expand) == "function",
+    "opts.snippet.expand must be a function"
+  )
 end)
 
 test("cmp.setup.cmdline was called for ':' and '/'", function()

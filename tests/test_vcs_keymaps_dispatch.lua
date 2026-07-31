@@ -27,7 +27,9 @@ local function test(name, fn)
 end
 
 local function assert_true(cond, msg)
-  if not cond then error(msg or "Expected truthy") end
+  if not cond then
+    error(msg or "Expected truthy")
+  end
 end
 
 local function assert_eq(a, b, msg)
@@ -49,11 +51,21 @@ local vcs_state = {
 }
 local vcs_stub = {
   debug = false,
-  detect_vcs_type = function() return vcs_state.current_type end,
-  get_cached_vcs_type = function() return vcs_state.current_type end,
-  is_jj_repo = function() return vcs_state.current_type == "jj" end,
-  is_git_repo = function() return vcs_state.current_type == "git" end,
-  get_repo_root = function() return "/fake/repo" end,
+  detect_vcs_type = function()
+    return vcs_state.current_type
+  end,
+  get_cached_vcs_type = function()
+    return vcs_state.current_type
+  end,
+  is_jj_repo = function()
+    return vcs_state.current_type == "jj"
+  end,
+  is_git_repo = function()
+    return vcs_state.current_type == "git"
+  end,
+  get_repo_root = function()
+    return "/fake/repo"
+  end,
   get_cache_stats = function()
     return { total_entries = 1, valid_entries = 1, expired_entries = 0, cache_ttl_ms = 5000 }
   end,
@@ -108,7 +120,9 @@ assert(type(entry.config) == "function", "vcs-keymaps config must be a function"
 
 local config_ok, config_err = pcall(entry.config)
 test("vcs-keymaps config() executes without error", function()
-  if not config_ok then error("config() raised: " .. tostring(config_err)) end
+  if not config_ok then
+    error("config() raised: " .. tostring(config_err))
+  end
 end)
 
 -- ============================================================================
@@ -124,14 +138,18 @@ end
 
 local function cmd_log_contains(needle)
   for _, c in ipairs(cmd_calls) do
-    if c:find(needle, 1, true) then return true end
+    if c:find(needle, 1, true) then
+      return true
+    end
   end
   return false
 end
 
 local function notify_log_contains(needle)
   for _, n in ipairs(notify_calls) do
-    if type(n.msg) == "string" and n.msg:find(needle, 1, true) then return true end
+    if type(n.msg) == "string" and n.msg:find(needle, 1, true) then
+      return true
+    end
   end
   return false
 end
@@ -145,50 +163,43 @@ vcs_state.current_type = "jj"
 test("<leader>gs in jj repo dispatches `J status`", function()
   reset_capture()
   invoke_keymap("<leader>gs")
-  assert_true(cmd_log_contains("J status"), "Expected vim.cmd('J status'), got: "
-    .. table.concat(cmd_calls, " | "))
+  assert_true(cmd_log_contains("J status"), "Expected vim.cmd('J status'), got: " .. table.concat(cmd_calls, " | "))
 end)
 
 test("<leader>gl in jj repo dispatches `J log`", function()
   reset_capture()
   invoke_keymap("<leader>gl")
-  assert_true(cmd_log_contains("J log"), "Expected vim.cmd('J log'), got: "
-    .. table.concat(cmd_calls, " | "))
+  assert_true(cmd_log_contains("J log"), "Expected vim.cmd('J log'), got: " .. table.concat(cmd_calls, " | "))
 end)
 
 test("<leader>gd in jj repo dispatches `J diff`", function()
   reset_capture()
   invoke_keymap("<leader>gd")
-  assert_true(cmd_log_contains("J diff"), "Expected vim.cmd('J diff'), got: "
-    .. table.concat(cmd_calls, " | "))
+  assert_true(cmd_log_contains("J diff"), "Expected vim.cmd('J diff'), got: " .. table.concat(cmd_calls, " | "))
 end)
 
 test("<leader>gc in jj repo dispatches `J describe`", function()
   reset_capture()
   invoke_keymap("<leader>gc")
-  assert_true(cmd_log_contains("J describe"), "Expected vim.cmd('J describe'), got: "
-    .. table.concat(cmd_calls, " | "))
+  assert_true(cmd_log_contains("J describe"), "Expected vim.cmd('J describe'), got: " .. table.concat(cmd_calls, " | "))
 end)
 
 test("<leader>gn in jj repo dispatches `J new`", function()
   reset_capture()
   invoke_keymap("<leader>gn")
-  assert_true(cmd_log_contains("J new"), "Expected vim.cmd('J new'), got: "
-    .. table.concat(cmd_calls, " | "))
+  assert_true(cmd_log_contains("J new"), "Expected vim.cmd('J new'), got: " .. table.concat(cmd_calls, " | "))
 end)
 
 test("<leader>gS in jj repo dispatches `J squash`", function()
   reset_capture()
   invoke_keymap("<leader>gS")
-  assert_true(cmd_log_contains("J squash"), "Expected vim.cmd('J squash'), got: "
-    .. table.concat(cmd_calls, " | "))
+  assert_true(cmd_log_contains("J squash"), "Expected vim.cmd('J squash'), got: " .. table.concat(cmd_calls, " | "))
 end)
 
 test("<leader>ge in jj repo dispatches `J edit`", function()
   reset_capture()
   invoke_keymap("<leader>ge")
-  assert_true(cmd_log_contains("J edit"), "Expected vim.cmd('J edit'), got: "
-    .. table.concat(cmd_calls, " | "))
+  assert_true(cmd_log_contains("J edit"), "Expected vim.cmd('J edit'), got: " .. table.concat(cmd_calls, " | "))
 end)
 
 -- ============================================================================
@@ -202,53 +213,49 @@ test("<leader>gs in git repo opens a terminal with `git status`", function()
   invoke_keymap("<leader>gs")
   -- Terminal split uses: "belowright 15split | terminal git status"
   -- and "startinsert"
-  assert_true(cmd_log_contains("git status"), "Expected vim.cmd to contain 'git status', got: "
-    .. table.concat(cmd_calls, " | "))
+  assert_true(
+    cmd_log_contains("git status"),
+    "Expected vim.cmd to contain 'git status', got: " .. table.concat(cmd_calls, " | ")
+  )
   assert_true(not cmd_log_contains("J status"), "Should NOT dispatch 'J status' in git repo")
 end)
 
 test("<leader>gl in git repo runs git log in terminal", function()
   reset_capture()
   invoke_keymap("<leader>gl")
-  assert_true(cmd_log_contains("git log"), "Expected terminal git log, got: "
-    .. table.concat(cmd_calls, " | "))
+  assert_true(cmd_log_contains("git log"), "Expected terminal git log, got: " .. table.concat(cmd_calls, " | "))
   assert_true(not cmd_log_contains("J log"), "Should NOT dispatch 'J log' in git repo")
 end)
 
 test("<leader>gd in git repo runs git diff in terminal", function()
   reset_capture()
   invoke_keymap("<leader>gd")
-  assert_true(cmd_log_contains("git diff"), "Expected terminal git diff, got: "
-    .. table.concat(cmd_calls, " | "))
+  assert_true(cmd_log_contains("git diff"), "Expected terminal git diff, got: " .. table.concat(cmd_calls, " | "))
 end)
 
 test("<leader>gc in git repo runs git commit in terminal", function()
   reset_capture()
   invoke_keymap("<leader>gc")
-  assert_true(cmd_log_contains("git commit"), "Expected terminal git commit, got: "
-    .. table.concat(cmd_calls, " | "))
+  assert_true(cmd_log_contains("git commit"), "Expected terminal git commit, got: " .. table.concat(cmd_calls, " | "))
 end)
 
 test("<leader>gn in git repo notifies 'jj new is only available'", function()
   reset_capture()
   invoke_keymap("<leader>gn")
-  assert_true(notify_log_contains("jj new is only available"),
-    "Expected notify about jj-only keymap")
+  assert_true(notify_log_contains("jj new is only available"), "Expected notify about jj-only keymap")
   assert_true(not cmd_log_contains("J new"), "Should NOT dispatch 'J new' in git repo")
 end)
 
 test("<leader>gS in git repo notifies 'jj squash is only available'", function()
   reset_capture()
   invoke_keymap("<leader>gS")
-  assert_true(notify_log_contains("jj squash is only available"),
-    "Expected notify about jj-only squash")
+  assert_true(notify_log_contains("jj squash is only available"), "Expected notify about jj-only squash")
 end)
 
 test("<leader>ge in git repo notifies 'jj edit is only available'", function()
   reset_capture()
   invoke_keymap("<leader>ge")
-  assert_true(notify_log_contains("jj edit is only available"),
-    "Expected notify about jj-only edit")
+  assert_true(notify_log_contains("jj edit is only available"), "Expected notify about jj-only edit")
 end)
 
 -- ============================================================================
@@ -267,8 +274,10 @@ test("<leader>g? notifies with VCS info (type/root/cache)", function()
   invoke_keymap("<leader>g?")
   assert_true(#notify_calls >= 1, "Expected at least one notify call")
   local msg = notify_calls[1].msg
-  assert_true(type(msg) == "string" and msg:find("VCS Information"),
-    "Expected VCS Information header in notify message, got: " .. tostring(msg))
+  assert_true(
+    type(msg) == "string" and msg:find("VCS Information"),
+    "Expected VCS Information header in notify message, got: " .. tostring(msg)
+  )
   assert_true(msg:find("Type: "), "Expected 'Type: ' in VCS info notify")
   assert_true(msg:find("Root: "), "Expected 'Root: ' in VCS info notify")
   assert_true(msg:find("Cache: "), "Expected 'Cache: ' in VCS info notify")
@@ -283,8 +292,7 @@ vcs_state.current_type = "none"
 test("<leader>gs in non-VCS dir notifies 'Not in a VCS repository'", function()
   reset_capture()
   invoke_keymap("<leader>gs")
-  assert_true(notify_log_contains("Not in a VCS repository"),
-    "Expected 'Not in a VCS repository' warning")
+  assert_true(notify_log_contains("Not in a VCS repository"), "Expected 'Not in a VCS repository' warning")
 end)
 
 -- ============================================================================

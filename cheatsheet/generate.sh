@@ -385,8 +385,7 @@ EOF
 <tr><td>folke/lazydev.nvim</td><td>Neovim Lua API + luvit-meta</td><td>ft=lua</td></tr>
 <tr><td>neovim/nvim-lspconfig</td><td>LSP configuration</td><td>always</td></tr>
 <tr><td>hrsh7th/nvim-cmp</td><td>Autocompletion</td><td>always</td></tr>
-<tr><td>stevearc/conform.nvim</td><td>Formatting (ruff, stylua, prettier, shfmt)</td><td>BufWritePre</td></tr>
-<tr><td>nvimtools/none-ls.nvim</td><td>Custom LSP sources (AppleScript, markdownlint)</td><td>always</td></tr>
+<tr><td>nvimtools/none-ls.nvim</td><td>Formatting (stylua, prettier, shfmt, gofmt) + AppleScript/markdownlint diagnostics</td><td>always</td></tr>
 <tr><td>folke/flash.nvim</td><td>Enhanced navigation</td><td>VeryLazy</td></tr>
 <tr><td>mfussenegger/nvim-dap</td><td>Debug (Python, Lua, Bash/Zsh)</td><td>on-keypress</td></tr>
 <tr><td>akinsho/toggleterm.nvim</td><td>Floating terminal</td><td>always</td></tr>

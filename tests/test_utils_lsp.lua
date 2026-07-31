@@ -5,25 +5,27 @@ local results = {
   passed = 0,
   failed = 0,
   warnings = 0,
-  tests = {}
+  tests = {},
 }
 
 local function test(name, fn)
   local ok, err = pcall(fn)
   if ok then
     results.passed = results.passed + 1
-    table.insert(results.tests, {name = name, status = "PASS"})
+    table.insert(results.tests, { name = name, status = "PASS" })
     print(string.format("✓ %s", name))
   else
     results.failed = results.failed + 1
-    table.insert(results.tests, {name = name, status = "FAIL", error = tostring(err)})
+    table.insert(results.tests, { name = name, status = "FAIL", error = tostring(err) })
     print(string.format("✗ %s: %s", name, err))
   end
 end
 
 local function assert_eq(actual, expected, msg)
   if actual ~= expected then
-    error(string.format("%s\nExpected: %s\nActual: %s", msg or "Assertion failed", tostring(expected), tostring(actual)))
+    error(
+      string.format("%s\nExpected: %s\nActual: %s", msg or "Assertion failed", tostring(expected), tostring(actual))
+    )
   end
 end
 

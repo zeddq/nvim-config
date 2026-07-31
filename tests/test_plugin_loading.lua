@@ -14,7 +14,7 @@ local results = {
   passed = 0,
   failed = 0,
   warnings = 0,
-  tests = {}
+  tests = {},
 }
 
 local function test(name, fn)
@@ -22,18 +22,18 @@ local function test(name, fn)
   local ok, err = pcall(fn)
   if ok then
     results.passed = results.passed + 1
-    table.insert(results.tests, {name = name, status = "PASS"})
+    table.insert(results.tests, { name = name, status = "PASS" })
     print(string.format("✓ %s", name))
   else
     results.failed = results.failed + 1
-    table.insert(results.tests, {name = name, status = "FAIL", error = tostring(err)})
+    table.insert(results.tests, { name = name, status = "FAIL", error = tostring(err) })
     print(string.format("✗ %s: %s", name, err))
   end
 end
 
 local function warn(name, message)
   results.warnings = results.warnings + 1
-  table.insert(results.tests, {name = name, status = "WARN", message = message})
+  table.insert(results.tests, { name = name, status = "WARN", message = message })
   print(string.format("⚠ %s: %s", name, message))
 end
 
@@ -67,8 +67,7 @@ test("jj.cmd mock provides complete API", function()
   assert_not_nil(cmd, "jj.cmd module should load")
   local required_fns = { "status", "log", "describe", "new", "edit", "diff", "squash" }
   for _, fn_name in ipairs(required_fns) do
-    assert_eq(type(cmd[fn_name]), "function",
-      string.format("jj.cmd.%s should be a function", fn_name))
+    assert_eq(type(cmd[fn_name]), "function", string.format("jj.cmd.%s should be a function", fn_name))
   end
 end)
 
@@ -122,8 +121,15 @@ end)
 -- Test 7: Check if keymaps are registered
 test("VCS keymaps are registered", function()
   local keymaps_to_check = {
-    "<leader>gs", "<leader>gl", "<leader>gd", "<leader>gc",
-    "<leader>gn", "<leader>gS", "<leader>ge", "<leader>gR", "<leader>g?",
+    "<leader>gs",
+    "<leader>gl",
+    "<leader>gd",
+    "<leader>gc",
+    "<leader>gn",
+    "<leader>gS",
+    "<leader>ge",
+    "<leader>gR",
+    "<leader>g?",
   }
 
   local found = 0
@@ -146,8 +152,15 @@ test("VCS keymaps are registered", function()
   end
 
   if found < #keymaps_to_check then
-    warn("VCS keymaps", string.format("Only %d/%d keymaps found. Missing: %s (may be expected in headless mode)",
-      found, #keymaps_to_check, table.concat(missing, ", ")))
+    warn(
+      "VCS keymaps",
+      string.format(
+        "Only %d/%d keymaps found. Missing: %s (may be expected in headless mode)",
+        found,
+        #keymaps_to_check,
+        table.concat(missing, ", ")
+      )
+    )
   else
     print(string.format("  All %d keymaps registered", found))
   end

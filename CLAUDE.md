@@ -8,6 +8,7 @@ Modern Neovim 0.12+ configuration featuring LSP-based development, autocompletio
 
 ```text
 init.lua                 # Entry point — loads config modules then plugins
+stylua.toml              # Lua formatter config (2-space, 120col) — read by CLI, none-ls, and JetBrains
 lua/
   config/
     options.lua          # Editor settings (numbers, search, indent, UI)
@@ -45,6 +46,7 @@ docs/                    # Extended documentation (JJ_INTEGRATION, SNACKS)
 scripts/
   post-commit            # Git hook: regenerate cheatsheet after commit
   setup.sh               # Install git hooks (symlinks scripts/ → .git/hooks/)
+  format_lua.lua         # Headless formatter driver (nvim --headless <files> -c 'luafile ...')
 cheatsheet/
   generate.sh            # Cheatsheet generator (HTML + optional VHS tape recording)
   tapes/                 # VHS .tape files for reproducible workflow demos
@@ -84,6 +86,7 @@ Other servers: `lua_ls` (with lazydev.nvim workspace management), `bashls`, `jdt
 
 - **none-ls.nvim** (`none-ls.lua`): Custom LSP sources — AppleScript osacompile diagnostics/formatter/code-actions, markdownlint diagnostics, gitsigns code actions. Format-on-save for its own sources.
 - **Ruff**: Python formatting via LSP code actions (not conform.nvim — conform was removed).
+- **Lua**: stylua via none-ls, configured by `stylua.toml` at the repo root. Never pass `extra_args` — stylua's CLI flags override the config file and desync the editor from CI. Check with `stylua --check .`.
 
 ### Neovim 0.12+ APIs
 

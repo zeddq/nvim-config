@@ -27,7 +27,9 @@ local function test(name, fn)
 end
 
 local function assert_true(cond, msg)
-  if not cond then error(msg or "Expected truthy") end
+  if not cond then
+    error(msg or "Expected truthy")
+  end
 end
 
 local function assert_eq(a, b, msg)
@@ -65,21 +67,31 @@ package.loaded["nvim-dap-virtual-text"] = nil
 package.loaded["dap-python"] = nil
 package.loaded["osv"] = nil
 
-package.preload["dap"] = function() return dap_mock end
+package.preload["dap"] = function()
+  return dap_mock
+end
 package.preload["dapui"] = function()
   return {
-    setup = function(opts) table.insert(dapui_calls, opts) end,
+    setup = function(opts)
+      table.insert(dapui_calls, opts)
+    end,
     open = function() end,
     close = function() end,
     toggle = function() end,
   }
 end
 package.preload["nvim-dap-virtual-text"] = function()
-  return { setup = function(opts) table.insert(virtual_text_calls, opts) end }
+  return {
+    setup = function(opts)
+      table.insert(virtual_text_calls, opts)
+    end,
+  }
 end
 package.preload["dap-python"] = function()
   return {
-    setup = function(py) table.insert(dap_python_setup_calls, py) end,
+    setup = function(py)
+      table.insert(dap_python_setup_calls, py)
+    end,
     test_method = function() end,
   }
 end
@@ -99,7 +111,9 @@ local function run_dap_config(bash_available)
   -- Fresh dap mock for isolated branch testing
   dap_mock = make_dap_mock()
   package.loaded["dap"] = nil
-  package.preload["dap"] = function() return dap_mock end
+  package.preload["dap"] = function()
+    return dap_mock
+  end
 
   package.loaded["plugins.dap"] = nil
   local spec = require("plugins.dap")
@@ -150,7 +164,9 @@ test("nvim-dap spec lists dap-ui and dap-python as dependencies", function()
   local entry = spec_initial[1]
   local deps = entry.dependencies or {}
   local dep_set = {}
-  for _, d in ipairs(deps) do dep_set[d] = true end
+  for _, d in ipairs(deps) do
+    dep_set[d] = true
+  end
   assert_true(dep_set["rcarriga/nvim-dap-ui"], "rcarriga/nvim-dap-ui must be in dependencies")
   assert_true(dep_set["mfussenegger/nvim-dap-python"], "mfussenegger/nvim-dap-python must be in dependencies")
 end)
@@ -161,17 +177,24 @@ end)
 
 local ok1, err1, _spec1 = run_dap_config(false)
 test("config() runs when bash-debug-adapter is unavailable", function()
-  if not ok1 then error("config() failed: " .. tostring(err1)) end
+  if not ok1 then
+    error("config() failed: " .. tostring(err1))
+  end
 end)
 
 test("dap.adapters.nlua is registered", function()
-  assert_true(type(dap_mock.adapters.nlua) == "function",
-    "dap.adapters.nlua should be a function (server-type adapter callback)")
+  assert_true(
+    type(dap_mock.adapters.nlua) == "function",
+    "dap.adapters.nlua should be a function (server-type adapter callback)"
+  )
 end)
 
 test("dap.adapters.bashdb is NOT set when bash-debug-adapter is missing", function()
-  assert_eq(dap_mock.adapters.bashdb, nil,
-    "bashdb adapter must be absent when bash-debug-adapter executable is missing")
+  assert_eq(
+    dap_mock.adapters.bashdb,
+    nil,
+    "bashdb adapter must be absent when bash-debug-adapter executable is missing"
+  )
 end)
 
 test("dap.configurations.sh/bash/zsh are NOT set when bash adapter is missing", function()
@@ -185,12 +208,16 @@ test("dap-python.setup was called", function()
 end)
 
 test("dap.configurations.python is populated", function()
-  assert_true(type(dap_mock.configurations.python) == "table"
-    and #dap_mock.configurations.python >= 1, "python configuration should be populated")
+  assert_true(
+    type(dap_mock.configurations.python) == "table" and #dap_mock.configurations.python >= 1,
+    "python configuration should be populated"
+  )
   -- The spec inserts a 'Launch file with arguments' entry
   local has_args_entry = false
   for _, c in ipairs(dap_mock.configurations.python) do
-    if c.name == "Launch file with arguments" then has_args_entry = true end
+    if c.name == "Launch file with arguments" then
+      has_args_entry = true
+    end
   end
   assert_true(has_args_entry, "Expected 'Launch file with arguments' python config")
 end)
@@ -201,7 +228,9 @@ end)
 
 local ok2, err2, _spec2 = run_dap_config(true)
 test("config() runs when bash-debug-adapter is available", function()
-  if not ok2 then error("config() failed: " .. tostring(err2)) end
+  if not ok2 then
+    error("config() failed: " .. tostring(err2))
+  end
 end)
 
 test("dap.adapters.bashdb is set when bash-debug-adapter is present", function()
@@ -211,12 +240,18 @@ test("dap.adapters.bashdb is set when bash-debug-adapter is present", function()
 end)
 
 test("dap.configurations.sh/bash/zsh are populated when bash adapter is present", function()
-  assert_true(type(dap_mock.configurations.sh) == "table" and #dap_mock.configurations.sh > 0,
-    "configurations.sh should be populated")
-  assert_true(type(dap_mock.configurations.bash) == "table" and #dap_mock.configurations.bash > 0,
-    "configurations.bash should be populated")
-  assert_true(type(dap_mock.configurations.zsh) == "table" and #dap_mock.configurations.zsh > 0,
-    "configurations.zsh should be populated")
+  assert_true(
+    type(dap_mock.configurations.sh) == "table" and #dap_mock.configurations.sh > 0,
+    "configurations.sh should be populated"
+  )
+  assert_true(
+    type(dap_mock.configurations.bash) == "table" and #dap_mock.configurations.bash > 0,
+    "configurations.bash should be populated"
+  )
+  assert_true(
+    type(dap_mock.configurations.zsh) == "table" and #dap_mock.configurations.zsh > 0,
+    "configurations.zsh should be populated"
+  )
 end)
 
 test("sh configuration uses bashdb adapter type", function()
@@ -234,19 +269,29 @@ local keys = entry.keys or {}
 local key_set = {}
 for _, k in ipairs(keys) do
   local lhs = k[1]
-  if lhs then key_set[lhs] = true end
+  if lhs then
+    key_set[lhs] = true
+  end
 end
 
 local expected_keys = {
-  "<F5>", "<F10>", "<F11>", "<F12>",
-  "<leader>b", "<leader>B",
-  "<leader>dr", "<leader>dl", "<leader>du",
+  "<F5>",
+  "<F10>",
+  "<F11>",
+  "<F12>",
+  "<leader>b",
+  "<leader>B",
+  "<leader>dr",
+  "<leader>dl",
+  "<leader>du",
 }
 
 for _, k in ipairs(expected_keys) do
   test("DAP spec declares keymap " .. k, function()
-    assert_true(key_set[k], "Key " .. k .. " missing from spec.keys; have: "
-      .. table.concat(vim.tbl_keys(key_set), ", "))
+    assert_true(
+      key_set[k],
+      "Key " .. k .. " missing from spec.keys; have: " .. table.concat(vim.tbl_keys(key_set), ", ")
+    )
   end)
 end
 

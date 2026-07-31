@@ -15,7 +15,7 @@ local results = {
   failed = 0,
   warnings = 0,
   manual = 0,
-  tests = {}
+  tests = {},
 }
 
 local function test(name, fn)
@@ -23,24 +23,24 @@ local function test(name, fn)
   local ok, err = pcall(fn)
   if ok then
     results.passed = results.passed + 1
-    table.insert(results.tests, {name = name, status = "PASS"})
+    table.insert(results.tests, { name = name, status = "PASS" })
     print(string.format("✓ %s", name))
   else
     results.failed = results.failed + 1
-    table.insert(results.tests, {name = name, status = "FAIL", error = tostring(err)})
+    table.insert(results.tests, { name = name, status = "FAIL", error = tostring(err) })
     print(string.format("✗ %s: %s", name, err))
   end
 end
 
 local function manual(name, instructions)
   results.manual = results.manual + 1
-  table.insert(results.tests, {name = name, status = "MANUAL", instructions = instructions})
+  table.insert(results.tests, { name = name, status = "MANUAL", instructions = instructions })
   print(string.format("⚠ %s: %s", name, instructions))
 end
 
 local function warn(name, message)
   results.warnings = results.warnings + 1
-  table.insert(results.tests, {name = name, status = "WARN", message = message})
+  table.insert(results.tests, { name = name, status = "WARN", message = message })
   print(string.format("⚠ %s: %s", name, message))
 end
 
@@ -129,8 +129,12 @@ end)
 test("VCS keymap helper functions exist", function()
   local vcs_module = require("utils.vcs")
   local required_functions = {
-    "detect_vcs_type", "is_jj_repo", "is_git_repo",
-    "get_repo_root", "clear_cache", "get_cache_stats"
+    "detect_vcs_type",
+    "is_jj_repo",
+    "is_git_repo",
+    "get_repo_root",
+    "clear_cache",
+    "get_cache_stats",
   }
 
   for _, fn_name in ipairs(required_functions) do
