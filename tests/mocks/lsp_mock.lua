@@ -12,10 +12,10 @@ local M = {}
 
 -- Call log exposed to tests
 M.calls = {
-  configs = {},       -- name -> opts (last call wins)
-  config_order = {},  -- list of names in call order
-  enables = {},       -- name -> true
-  enable_order = {},  -- list of names in call order
+  configs = {}, -- name -> opts (last call wins)
+  config_order = {}, -- list of names in call order
+  enables = {}, -- name -> true
+  enable_order = {}, -- list of names in call order
   mason_setup = nil,
   mason_lspconfig_setup = nil, -- captured opts incl. ensure_installed
   cmp_default_caps_calls = 0,

@@ -140,7 +140,6 @@ return {
       end, { desc = "JJ diff current file (terminal)" })
     end
 
-
     -- Pickers
     local picker = require("jj.picker")
     vim.keymap.set("n", "<leader>gj", function()

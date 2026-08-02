@@ -28,6 +28,25 @@ return {
         },
       })
 
+      ---@type table<string, vim.lsp.ClientConfig>
+      local lsp_servers = {}
+
+      --- Register a server and record it so the enable/toggle loop below picks it up.
+      ---
+      --- Deliberately does NOT default `cmd`. vim.lsp.config() merges on top of the
+      --- `lsp/<name>.lua` defaults nvim-lspconfig puts on the runtimepath, and those
+      --- already carry the right command. LSP *names* are not binary names —
+      --- lua_ls is `lua-language-server`, bashls is `bash-language-server start`,
+      --- basedpyright is `basedpyright-langserver --stdio` (the bare `basedpyright`
+      --- binary is the CLI type checker, which spawns fine and then never speaks
+      --- LSP). Defaulting cmd to server_name silently broke all three.
+      ---@param server_name string Server name displayed in the UI config
+      ---@param client_config vim.lsp.Config Custom server configuration to register
+      local function register_server(server_name, client_config)
+        lsp_servers[server_name] = client_config
+        vim.lsp.config(server_name, client_config)
+      end
+
       -- Get capabilities from cmp_nvim_lsp first
       -- local capabilities = vim.lsp.protocol.make_client_capabilities()
       -- capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
@@ -92,6 +111,7 @@ return {
             vim.lsp.buf.definition,
             vim.tbl_extend("force", opts, { desc = "Go to definition" })
           )
+
           vim.keymap.set("n", "gD", function()
             -- Fall back to definition when no attached server advertises
             -- `declarationProvider` (true for lua_ls, pyright, ruff, etc.).
@@ -109,20 +129,25 @@ return {
             vim.lsp.buf.implementation,
             vim.tbl_extend("force", opts, { desc = "Go to implementation" })
           )
+
           vim.keymap.set("n", "gr", vim.lsp.buf.references, vim.tbl_extend("force", opts, { desc = "Show references" }))
+
           vim.keymap.set("n", "K", vim.lsp.buf.hover, vim.tbl_extend("force", opts, { desc = "Hover documentation" }))
+
           vim.keymap.set(
             "n",
             "<C-k>",
             vim.lsp.buf.signature_help,
             vim.tbl_extend("force", opts, { desc = "Signature help" })
           )
+
           vim.keymap.set(
             "n",
             "<leader>rn",
             vim.lsp.buf.rename,
             vim.tbl_extend("force", opts, { desc = "Rename symbol" })
           )
+
           vim.keymap.set(
             { "n", "v" },
             "<leader>ca",
@@ -168,6 +193,7 @@ return {
             })
           end, vim.tbl_extend("force", opts, { desc = "Quick fix (line)" }))
 
+          -- Format document (Ruff)
           vim.keymap.set("n", "<leader>f", function()
             vim.lsp.buf.format({ async = true })
           end, vim.tbl_extend("force", opts, { desc = "Format document" }))
@@ -179,12 +205,14 @@ return {
             vim.lsp.buf.add_workspace_folder,
             vim.tbl_extend("force", opts, { desc = "Add workspace folder" })
           )
+
           vim.keymap.set(
             "n",
             "<leader>wr",
             vim.lsp.buf.remove_workspace_folder,
             vim.tbl_extend("force", opts, { desc = "Remove workspace folder" })
           )
+
           vim.keymap.set("n", "<leader>wl", function()
             print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
           end, vim.tbl_extend("force", opts, { desc = "List workspace folders" }))
@@ -205,9 +233,7 @@ return {
           end
 
           -- Server-specific on_attach logic
-          if client.name == "bashls" then
-            print("bashls attached to buffer " .. bufnr)
-          elseif client.name == "ruff" then
+          if client.name == "ruff" then
             -- Disable hover in favor of basedpyright
             client.server_capabilities.hoverProvider = false
 
@@ -247,12 +273,19 @@ return {
       -- No handlers block, no automatic_installation
       require("mason-lspconfig").setup({
         ensure_installed = { "basedpyright", "ruff", "pylsp", "lua_ls", "bashls", "jdtls", "taplo" },
+        -- v2 defaults this to true, which enables *every* installed Mason package
+        -- nvim-lspconfig ships an lsp/*.lua for — not just ensure_installed. With
+        -- ~90 packages installed that meant pyright racing basedpyright on every
+        -- Python buffer, and stylua attaching as an LSP server on top of the
+        -- none-ls copy (formatting Lua twice). register_server() below is the
+        -- single source of truth for what actually runs.
+        automatic_enable = false,
       })
 
       -- Configure each server with vim.lsp.config (Neovim 0.12+ API)
 
       -- basedpyright configuration
-      vim.lsp.config("basedpyright", {
+      register_server("basedpyright", {
         capabilities = capabilities,
         settings = {
           basedpyright = {
@@ -279,7 +312,9 @@ return {
       })
 
       -- ruff configuration
-      vim.lsp.config("ruff", {
+      --- @type string
+      --- @type vim.lsp.Config
+      register_server("ruff", {
         capabilities = capabilities,
         init_options = {
           ---@type lspconfig.settings.ruff
@@ -291,7 +326,9 @@ return {
       })
 
       -- pylsp configuration (for refactoring with rope and diagnostics with python-lsp-ruff)
-      vim.lsp.config("pylsp", {
+      --- @type string
+      --- @type vim.lsp.Config
+      register_server("pylsp", {
         capabilities = capabilities,
         ---@type lspconfig.settings.pylsp
         settings = {
@@ -314,10 +351,10 @@ return {
               jedi_signature_help = { enabled = false },
               jedi_symbols = { enabled = false },
               jedi_definition = { enabled = false },
-              pylint = { enabled = true },
-              flake8 = { enabled = true },
+              pylint = { enabled = false },
+              flake8 = { enabled = false },
               pylsp_mypy = { enabled = false },
-              pydocstyle = { enabled = true },
+              pydocstyle = { enabled = false },
             },
           },
         },
@@ -328,8 +365,9 @@ return {
       -- stubs) so `vim.*` intellisense works even if lazydev hasn't attached
       -- yet (ft=lua loading can race LspAttach). lazydev then layers plugin
       -- libraries on top dynamically.
+      --- @type string
       --- @type vim.lsp.Config
-      local luals_cfg = {
+      register_server("lua_ls", {
         capabilities = capabilities,
         --- @type lspconfig.settings.lua_ls
         settings = {
@@ -342,7 +380,7 @@ return {
             workspace = {
               checkThirdParty = false,
               library = {
-                vim.env.VIMRUNTIME,
+                vim.env.VIMRUNTIME --[[@as string]],
                 "${3rd}/luv/library",
                 "${3rd}/luassert/library",
               },
@@ -361,8 +399,7 @@ return {
             telemetry = { enable = false },
           },
         },
-      }
-      vim.lsp.config("lua_ls", luals_cfg)
+      })
 
       -- jdtls (Java) configuration
       local java_home = vim.env.JAVA_HOME
@@ -371,7 +408,9 @@ return {
       else
         local jdtls_workspace = vim.fn.stdpath("cache") .. "/jdtls/workspace/"
 
-        vim.lsp.config("jdtls", {
+        ---@type string
+        ---@type vim.lsp.ClientConfig
+        register_server("jdtls", {
           capabilities = capabilities,
           cmd = {
             "jdtls",
@@ -394,7 +433,6 @@ return {
                   },
                 },
               },
-              eclipse = { downloadSources = true },
               maven = { downloadSources = true },
               signatureHelp = { enabled = true },
               contentProvider = { preferred = "fernflower" },
@@ -424,11 +462,12 @@ return {
             ".git",
           },
         })
-        vim.lsp.enable("jdtls")
       end
 
       -- bashls configuration
-      vim.lsp.config("bashls", {
+      ---@type string
+      ---@type lspconfig.Config
+      register_server("bashls", {
         capabilities = capabilities,
         ---@type lspconfig.settings.bashls
         settings = {
@@ -444,7 +483,7 @@ return {
       })
 
       -- taplo (TOML) configuration
-      vim.lsp.config("taplo", {
+      register_server("taplo", {
         capabilities = capabilities,
         settings = {
           evenBetterToml = {
@@ -457,87 +496,90 @@ return {
         },
       })
 
-      vim.lsp.config("rust_analyzer", {
+      register_server("rust_analyzer", {
         capabilities = capabilities,
       })
 
       -- Enable all configured servers (Neovim 0.12+ API)
-      local lsp_servers = {
-        "basedpyright",
-        "ruff",
-        "pylsp",
-        "lua_ls",
-        "bashls",
-        "jdtls",
-        "taplo",
-        "rust_analyzer",
-      }
-      ---returns srv -> key table mapping
-      ---@param srv string
-      ---@return table<string>
-      local keys = vim.tbl_map(function(srv)
-        return "lsp_" .. srv
-      end, lsp_servers)
+      -- Sorted, and kept as an *array* rather than a name -> toggle_id map:
+      -- toggle keys are handed out positionally from toggle_keyset below, so
+      -- iterating with pairs() would reshuffle every <leader>tl<key> binding
+      -- between sessions. ipairs over a sorted list keeps them stable.
+      ---@type string[]
+      local server_names = vim.tbl_keys(lsp_servers)
+      table.sort(server_names)
 
       -- Generate a list of keys for mapping
-      local keyset = {} ---@type string[]
+      local toggle_keyset = {} ---@type string[]
       for i = 1, 10, 1 do
-        keyset[#keyset + 1] = tostring(i % 10)
+        toggle_keyset[#toggle_keyset + 1] = tostring(i % 10)
       end
       for i = string.byte("a"), string.byte("z") do
         local char = string.char(i)
         if char ~= "l" and char ~= "t" then
-          keyset[#keyset + 1] = char
+          toggle_keyset[#toggle_keyset + 1] = char
         end
       end
 
-      local it, keytab, nextid = ipairs(keyset)
-      local all_lsp_toggles = {} ---@type table<string, snacks.toggle.Class>
-
-      for sid, server in ipairs(lsp_servers) do
-        local key = keys[sid]
+      -- Enable servers first, on their own. Toggle registration below needs
+      -- Snacks, which is absent under the headless unit tests (--noplugin) and
+      -- during early startup — folding both into one loop meant a nil Snacks
+      -- aborted the loop partway and silently left later servers disabled.
+      for _, server in ipairs(server_names) do
         vim.lsp.enable(server)
-        local t = Snacks.toggle.new({
-          id = key,
-          name = server:sub(1, 1):upper() .. server:sub(2) .. " Toggle",
-
-          ---sets new value
-          ---@param newval boolean
-          set = function(newval)
-            vim.lsp.enable(server, newval)
-          end,
-
-          ---returns current value
-          ---@return boolean
-          get = function()
-            return vim.lsp.is_enabled(server)
-          end,
-        })
-        all_lsp_toggles[key] = t
-
-        local keymap
-        nextid, keymap = it(keytab, nextid)
-        t:map("<leader>tl" .. keymap, { mode = { "n", "v" } })
       end
 
-      local toggle_all = Snacks.toggle.new({
-        id = "lsp_toggle_all",
-        name = "Toggle All LSPs",
-        get = function()
-          ---gets all enabled servers
-          ---@param toggle snacks.toggle.Class
-          local tmp = vim.tbl_filter(function(toggle)
-            return toggle:get()
-          end, all_lsp_toggles)
-          return #tmp > 0
-        end,
-        set = function(state)
-          for _, t in pairs(all_lsp_toggles) do
-            t:set(state)
+      local all_lsp_toggles = {} ---@type table<string, snacks.toggle.Class>
+
+      if Snacks and Snacks.toggle then
+        for i, server in ipairs(server_names) do
+          local toggle_id = "lsp_" .. server
+          local t = Snacks.toggle.new({
+            id = toggle_id,
+            name = server:sub(1, 1):upper() .. server:sub(2),
+
+            ---sets new value
+            ---@param newval boolean
+            set = function(newval)
+              vim.lsp.enable(server, newval)
+            end,
+
+            ---returns current value
+            ---@return boolean
+            get = function()
+              return vim.lsp.is_enabled(server)
+            end,
+          })
+          all_lsp_toggles[toggle_id] = t
+
+          -- More servers than available keys would index past the end of
+          -- toggle_keyset and concatenate nil, taking down the whole config.
+          local keymap = toggle_keyset[i]
+          if keymap then
+            t:map("<leader>tl" .. keymap, { mode = { "n", "v" } })
+          else
+            vim.notify(("No toggle key left for %s (>%d servers)"):format(server, #toggle_keyset), vim.log.levels.WARN)
           end
-        end,
-      })
-      toggle_all:map("<leader>tll")
+        end
+
+        local toggle_all = Snacks.toggle.new({
+          id = "lsp_toggle_all",
+          name = "Toggle All LSPs",
+          get = function()
+            ---gets all enabled servers
+            ---@param toggle snacks.toggle.Class
+            return vim.iter(all_lsp_toggles):any(function(_, toggle)
+              return toggle:get()
+            end)
+          end,
+          set = function(state)
+            for _, t in pairs(all_lsp_toggles) do
+              t:set(state)
+            end
+          end,
+        })
+        toggle_all:map("<leader>tll")
+      end
 
       -- Configure diagnostics (Neovim 0.12+ API with inline sign text)
       vim.diagnostic.config({

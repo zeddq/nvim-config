@@ -59,8 +59,7 @@ assert(entry, "Expected nvim-lspconfig plugin entry in spec")
 
 -- Stub JAVA_HOME so jdtls branch runs
 local prev_java_home = vim.env.JAVA_HOME
-vim.env.JAVA_HOME = vim.env.JAVA_HOME ~= nil and vim.env.JAVA_HOME ~= "" and vim.env.JAVA_HOME
-  or "/tmp/fake-java-home"
+vim.env.JAVA_HOME = vim.env.JAVA_HOME ~= nil and vim.env.JAVA_HOME ~= "" and vim.env.JAVA_HOME or "/tmp/fake-java-home"
 
 -- Execute the config function — this runs all the setup code
 local config_ok, config_err = pcall(entry.config, entry, entry.opts or {})
@@ -86,7 +85,9 @@ test("mason-lspconfig.setup ensure_installed contains all 7 servers", function()
   local ensure = ml.ensure_installed or {}
   local want = { "basedpyright", "ruff", "pylsp", "lua_ls", "bashls", "jdtls", "taplo" }
   local set = {}
-  for _, s in ipairs(ensure) do set[s] = true end
+  for _, s in ipairs(ensure) do
+    set[s] = true
+  end
   for _, s in ipairs(want) do
     assert_true(set[s], "ensure_installed missing server: " .. s)
   end
@@ -109,21 +110,24 @@ end
 
 test("basedpyright config has settings.basedpyright.analysis", function()
   local cfg = captured_configs["basedpyright"]
-  assert_true(cfg.settings and cfg.settings.basedpyright and cfg.settings.basedpyright.analysis,
-    "basedpyright analysis settings missing")
+  assert_true(
+    cfg.settings and cfg.settings.basedpyright and cfg.settings.basedpyright.analysis,
+    "basedpyright analysis settings missing"
+  )
 end)
 
 test("basedpyright pythonPath fallback is non-empty", function()
   local cfg = captured_configs["basedpyright"]
   local python_path = cfg.settings and cfg.settings.python and cfg.settings.python.pythonPath
-  assert_true(type(python_path) == "string" and python_path ~= "",
-    "basedpyright python.pythonPath should never be an empty exepath result")
+  assert_true(
+    type(python_path) == "string" and python_path ~= "",
+    "basedpyright python.pythonPath should never be an empty exepath result"
+  )
 end)
 
 test("lua_ls integrates with lazydev-compatible workspace library", function()
   local cfg = captured_configs["lua_ls"]
-  local lib = cfg.settings and cfg.settings.Lua and cfg.settings.Lua.workspace
-    and cfg.settings.Lua.workspace.library
+  local lib = cfg.settings and cfg.settings.Lua and cfg.settings.Lua.workspace and cfg.settings.Lua.workspace.library
   assert_true(type(lib) == "table" and #lib > 0, "lua_ls workspace.library should be populated")
   -- Should include VIMRUNTIME so vim.* and vim.uv libraries are resolvable
   local has_vimruntime = false
@@ -140,14 +144,21 @@ test("pylsp config disables jedi_*, pylint, flake8, pylsp_mypy, pydocstyle, ruff
   local plugins = cfg.settings and cfg.settings.pylsp and cfg.settings.pylsp.plugins
   assert_true(plugins ~= nil, "pylsp plugins config missing")
   local disabled = {
-    "ruff", "jedi_completion", "jedi_hover", "jedi_references",
-    "jedi_signature_help", "jedi_symbols", "jedi_definition",
-    "pylint", "flake8", "pylsp_mypy", "pydocstyle",
+    "ruff",
+    "jedi_completion",
+    "jedi_hover",
+    "jedi_references",
+    "jedi_signature_help",
+    "jedi_symbols",
+    "jedi_definition",
+    "pylint",
+    "flake8",
+    "pylsp_mypy",
+    "pydocstyle",
   }
   for _, name in ipairs(disabled) do
     local p = plugins[name]
-    assert_true(p and p.enabled == false,
-      "pylsp plugin '" .. name .. "' should be disabled (enabled=false)")
+    assert_true(p and p.enabled == false, "pylsp plugin '" .. name .. "' should be disabled (enabled=false)")
   end
 end)
 
@@ -155,10 +166,8 @@ test("pylsp config enables rope-based refactoring", function()
   local cfg = captured_configs["pylsp"]
   local plugins = cfg.settings.pylsp.plugins
   -- pylsp_rope + rope_rename are the rope-based refactoring knobs.
-  assert_true(plugins.pylsp_rope and plugins.pylsp_rope.enabled == true,
-    "pylsp_rope should be enabled for refactoring")
-  assert_true(plugins.rope_rename and plugins.rope_rename.enabled == true,
-    "rope_rename should be enabled")
+  assert_true(plugins.pylsp_rope and plugins.pylsp_rope.enabled == true, "pylsp_rope should be enabled for refactoring")
+  assert_true(plugins.rope_rename and plugins.rope_rename.enabled == true, "rope_rename should be enabled")
 end)
 
 -- LspAttach keymap verification: simulate a client attaching and observe
@@ -196,7 +205,9 @@ local fake_client = {
   },
 }
 local orig_get_client = vim.lsp.get_client_by_id
-vim.lsp.get_client_by_id = function(_id) return fake_client end
+vim.lsp.get_client_by_id = function(_id)
+  return fake_client
+end
 
 -- Stub nvim_buf_create_user_command so ruff branch doesn't bomb on fake bufnr
 local orig_buf_create_cmd = vim.api.nvim_buf_create_user_command
@@ -213,7 +224,9 @@ vim.lsp.get_client_by_id = orig_get_client
 vim.api.nvim_buf_create_user_command = orig_buf_create_cmd
 
 test("LspAttach callback executed without error", function()
-  if not cb_ok then error("LspAttach callback failed: " .. tostring(cb_err)) end
+  if not cb_ok then
+    error("LspAttach callback failed: " .. tostring(cb_err))
+  end
 end)
 
 -- Collect set of (mode, lhs) pairs
@@ -224,14 +237,25 @@ end
 
 -- Expected keymaps based on the actual source (lsp.lua lines 74-143)
 local expected_keys = {
-  "n:gd", "n:gD", "n:gi", "n:gr", "n:K", "n:<C-k>",
-  "n:<leader>rn", "n:<leader>ca", "v:<leader>ca",
-  "n:<leader>cf", "n:<leader>co",
-  "n:<leader>cr", "v:<leader>cr",
+  "n:gd",
+  "n:gD",
+  "n:gi",
+  "n:gr",
+  "n:K",
+  "n:<C-k>",
+  "n:<leader>rn",
+  "n:<leader>ca",
+  "v:<leader>ca",
+  "n:<leader>cf",
+  "n:<leader>co",
+  "n:<leader>cr",
+  "v:<leader>cr",
   "v:<leader>ce",
   "n:<leader>cq",
   "n:<leader>f",
-  "n:<leader>wa", "n:<leader>wr", "n:<leader>wl",
+  "n:<leader>wa",
+  "n:<leader>wr",
+  "n:<leader>wl",
 }
 
 for _, k in ipairs(expected_keys) do
@@ -242,8 +266,7 @@ end
 
 test("ruff on_attach disables hoverProvider", function()
   -- fake_client was passed through; the ruff branch sets hoverProvider = false
-  assert_eq(fake_client.server_capabilities.hoverProvider, false,
-    "ruff LspAttach should disable hoverProvider")
+  assert_eq(fake_client.server_capabilities.hoverProvider, false, "ruff LspAttach should disable hoverProvider")
 end)
 
 -- Also verify the pylsp on_attach branch mutates capabilities as documented
@@ -263,7 +286,9 @@ local pylsp_client = {
   },
 }
 orig_get_client = vim.lsp.get_client_by_id
-vim.lsp.get_client_by_id = function(_id) return pylsp_client end
+vim.lsp.get_client_by_id = function(_id)
+  return pylsp_client
+end
 orig_keymap_set = vim.keymap.set
 vim.keymap.set = function(_m, _l, _r, _o) end
 pcall(attach_cb, fake_args)
@@ -271,21 +296,27 @@ vim.keymap.set = orig_keymap_set
 vim.lsp.get_client_by_id = orig_get_client
 
 test("pylsp on_attach disables hover/definition/references", function()
-  assert_eq(pylsp_client.server_capabilities.hoverProvider, false,
-    "pylsp hover should be disabled")
-  assert_eq(pylsp_client.server_capabilities.definitionProvider, false,
-    "pylsp definition should be disabled")
-  assert_eq(pylsp_client.server_capabilities.referencesProvider, false,
-    "pylsp references should be disabled")
+  assert_eq(pylsp_client.server_capabilities.hoverProvider, false, "pylsp hover should be disabled")
+  assert_eq(pylsp_client.server_capabilities.definitionProvider, false, "pylsp definition should be disabled")
+  assert_eq(pylsp_client.server_capabilities.referencesProvider, false, "pylsp references should be disabled")
 end)
 
 test("pylsp on_attach disables document/workspace symbols and formatting", function()
-  assert_eq(pylsp_client.server_capabilities.documentSymbolProvider, false,
-    "pylsp documentSymbolProvider should be disabled")
-  assert_eq(pylsp_client.server_capabilities.workspaceSymbolProvider, false,
-    "pylsp workspaceSymbolProvider should be disabled")
-  assert_eq(pylsp_client.server_capabilities.documentFormattingProvider, false,
-    "pylsp formatting should be disabled (ruff LSP handles formatting)")
+  assert_eq(
+    pylsp_client.server_capabilities.documentSymbolProvider,
+    false,
+    "pylsp documentSymbolProvider should be disabled"
+  )
+  assert_eq(
+    pylsp_client.server_capabilities.workspaceSymbolProvider,
+    false,
+    "pylsp workspaceSymbolProvider should be disabled"
+  )
+  assert_eq(
+    pylsp_client.server_capabilities.documentFormattingProvider,
+    false,
+    "pylsp formatting should be disabled (ruff LSP handles formatting)"
+  )
 end)
 
 -- Cleanup

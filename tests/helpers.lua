@@ -17,17 +17,23 @@ M.repo_root = repo_root
 
 function M.assert_eq(actual, expected, msg)
   if actual ~= expected then
-    error(string.format("%s\nExpected: %s\nActual: %s",
-      msg or "Assertion failed", tostring(expected), tostring(actual)), 2)
+    error(
+      string.format("%s\nExpected: %s\nActual: %s", msg or "Assertion failed", tostring(expected), tostring(actual)),
+      2
+    )
   end
 end
 
 function M.assert_not_nil(v, msg)
-  if v == nil then error(msg or "Expected non-nil value", 2) end
+  if v == nil then
+    error(msg or "Expected non-nil value", 2)
+  end
 end
 
 function M.assert_true(v, msg)
-  if not v then error(msg or "Assertion failed: expected truthy value", 2) end
+  if not v then
+    error(msg or "Assertion failed: expected truthy value", 2)
+  end
 end
 
 local _originals = {}
@@ -37,12 +43,16 @@ function M.stub_package(name, mod)
     _originals[name] = { preload = package.preload[name], loaded = package.loaded[name] }
   end
   package.loaded[name] = nil
-  package.preload[name] = function() return mod end
+  package.preload[name] = function()
+    return mod
+  end
 end
 
 function M.restore_package(name)
   local orig = _originals[name]
-  if orig == nil then return end
+  if orig == nil then
+    return
+  end
   package.preload[name] = orig.preload
   package.loaded[name] = orig.loaded
   _originals[name] = nil
@@ -59,7 +69,9 @@ end
 
 vim.api.nvim_create_autocmd("VimLeavePre", {
   callback = function()
-    for _, p in ipairs(_tmpdirs) do pcall(vim.fn.delete, p, "rf") end
+    for _, p in ipairs(_tmpdirs) do
+      pcall(vim.fn.delete, p, "rf")
+    end
   end,
 })
 
@@ -106,7 +118,9 @@ function Runner:finish()
   if self.failed > 0 then
     print("\nFailed tests:")
     for _, t in ipairs(self.tests) do
-      if t.status == "FAIL" then print(string.format("  - %s: %s", t.name, t.error)) end
+      if t.status == "FAIL" then
+        print(string.format("  - %s: %s", t.name, t.error))
+      end
     end
     vim.cmd("cquit 1")
   else
@@ -117,8 +131,12 @@ end
 
 function M.new_runner()
   return setmetatable({
-    passed = 0, failed = 0, warnings = 0, skipped = 0,
-    tests = {}, manual_items = {},
+    passed = 0,
+    failed = 0,
+    warnings = 0,
+    skipped = 0,
+    tests = {},
+    manual_items = {},
   }, Runner)
 end
 

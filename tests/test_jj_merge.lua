@@ -5,25 +5,27 @@ local results = {
   passed = 0,
   failed = 0,
   warnings = 0,
-  tests = {}
+  tests = {},
 }
 
 local function test(name, fn)
   local ok, err = pcall(fn)
   if ok then
     results.passed = results.passed + 1
-    table.insert(results.tests, {name = name, status = "PASS"})
+    table.insert(results.tests, { name = name, status = "PASS" })
     print(string.format("✓ %s", name))
   else
     results.failed = results.failed + 1
-    table.insert(results.tests, {name = name, status = "FAIL", error = tostring(err)})
+    table.insert(results.tests, { name = name, status = "FAIL", error = tostring(err) })
     print(string.format("✗ %s: %s", name, err))
   end
 end
 
 local function assert_eq(actual, expected, msg)
   if actual ~= expected then
-    error(string.format("%s\nExpected: %s\nActual: %s", msg or "Assertion failed", tostring(expected), tostring(actual)))
+    error(
+      string.format("%s\nExpected: %s\nActual: %s", msg or "Assertion failed", tostring(expected), tostring(actual))
+    )
   end
 end
 
@@ -115,7 +117,10 @@ test("find_output_win returns unique non-diff modifiable candidate (3-way layout
   local l_buf = new_scratch_buf(true)
   local b_buf = new_scratch_buf(true)
   local r_buf = new_scratch_buf(true)
-  fill_buf(out_buf); fill_buf(l_buf); fill_buf(b_buf); fill_buf(r_buf)
+  fill_buf(out_buf)
+  fill_buf(l_buf)
+  fill_buf(b_buf)
+  fill_buf(r_buf)
 
   -- Layout: top row has three diff windows (left, base, right); bottom is output
   vim.api.nvim_set_current_buf(l_buf)
@@ -149,15 +154,22 @@ end)
 test("find_output_win returns nil/nil when two non-diff candidates exist", function()
   reset_tab()
   -- Two modifiable non-diff windows, both qualify as output → ambiguous
-  local a = new_scratch_buf(true); fill_buf(a)
-  local b = new_scratch_buf(true); fill_buf(b)
-  local c = new_scratch_buf(true); fill_buf(c) -- one diff window so get_diff_wins returns something
-  local d = new_scratch_buf(true); fill_buf(d)
+  local a = new_scratch_buf(true)
+  fill_buf(a)
+  local b = new_scratch_buf(true)
+  fill_buf(b)
+  local c = new_scratch_buf(true)
+  fill_buf(c) -- one diff window so get_diff_wins returns something
+  local d = new_scratch_buf(true)
+  fill_buf(d)
 
   vim.api.nvim_set_current_buf(a)
-  vim.cmd("split"); vim.api.nvim_set_current_buf(b)
-  vim.cmd("split"); vim.api.nvim_set_current_buf(c)
-  vim.cmd("split"); vim.api.nvim_set_current_buf(d)
+  vim.cmd("split")
+  vim.api.nvim_set_current_buf(b)
+  vim.cmd("split")
+  vim.api.nvim_set_current_buf(c)
+  vim.cmd("split")
+  vim.api.nvim_set_current_buf(d)
 
   -- Mark two as diff, two as non-diff
   local wins = vim.api.nvim_tabpage_list_wins(0)
@@ -184,14 +196,21 @@ end)
 
 test("vim.g.jj_merge_outbuf is honored even with other non-diff candidates", function()
   reset_tab()
-  local forced = new_scratch_buf(true); fill_buf(forced)
-  local other = new_scratch_buf(true); fill_buf(other) -- would otherwise be ambiguous
-  local d1 = new_scratch_buf(true); fill_buf(d1)
-  local d2 = new_scratch_buf(true); fill_buf(d2)
+  local forced = new_scratch_buf(true)
+  fill_buf(forced)
+  local other = new_scratch_buf(true)
+  fill_buf(other) -- would otherwise be ambiguous
+  local d1 = new_scratch_buf(true)
+  fill_buf(d1)
+  local d2 = new_scratch_buf(true)
+  fill_buf(d2)
 
-  vim.api.nvim_set_current_buf(d1); vim.cmd("vsplit")
-  vim.api.nvim_set_current_buf(d2); vim.cmd("split")
-  vim.api.nvim_set_current_buf(other); vim.cmd("split")
+  vim.api.nvim_set_current_buf(d1)
+  vim.cmd("vsplit")
+  vim.api.nvim_set_current_buf(d2)
+  vim.cmd("split")
+  vim.api.nvim_set_current_buf(other)
+  vim.cmd("split")
   vim.api.nvim_set_current_buf(forced)
 
   local wins = vim.api.nvim_tabpage_list_wins(0)
@@ -214,13 +233,19 @@ end)
 
 test("floating windows are ignored by output detection", function()
   reset_tab()
-  local out_buf = new_scratch_buf(true); fill_buf(out_buf)
-  local l_buf = new_scratch_buf(true); fill_buf(l_buf)
-  local r_buf = new_scratch_buf(true); fill_buf(r_buf)
-  local float_buf = new_scratch_buf(true); fill_buf(float_buf)
+  local out_buf = new_scratch_buf(true)
+  fill_buf(out_buf)
+  local l_buf = new_scratch_buf(true)
+  fill_buf(l_buf)
+  local r_buf = new_scratch_buf(true)
+  fill_buf(r_buf)
+  local float_buf = new_scratch_buf(true)
+  fill_buf(float_buf)
 
-  vim.api.nvim_set_current_buf(l_buf); vim.cmd("vsplit")
-  vim.api.nvim_set_current_buf(r_buf); vim.cmd("split")
+  vim.api.nvim_set_current_buf(l_buf)
+  vim.cmd("vsplit")
+  vim.api.nvim_set_current_buf(r_buf)
+  vim.cmd("split")
   vim.api.nvim_set_current_buf(out_buf)
 
   local wins = vim.api.nvim_tabpage_list_wins(0)
@@ -231,7 +256,11 @@ test("floating windows are ignored by output detection", function()
 
   -- Open a floating, non-diff, modifiable window → must NOT be treated as output
   vim.api.nvim_open_win(float_buf, false, {
-    relative = "editor", width = 10, height = 3, row = 1, col = 1,
+    relative = "editor",
+    width = 10,
+    height = 3,
+    row = 1,
+    col = 1,
   })
 
   package.loaded["utils.jj_merge"] = nil
@@ -246,8 +275,10 @@ end)
 
 test("M.take('base') in 2-way layout emits WARN notify", function()
   reset_tab()
-  local left = new_scratch_buf(true); fill_buf(left)
-  local right = new_scratch_buf(true); fill_buf(right)
+  local left = new_scratch_buf(true)
+  fill_buf(left)
+  local right = new_scratch_buf(true)
+  fill_buf(right)
 
   vim.api.nvim_set_current_buf(left)
   vim.cmd("vsplit")
@@ -255,7 +286,7 @@ test("M.take('base') in 2-way layout emits WARN notify", function()
 
   local wins = vim.api.nvim_tabpage_list_wins(0)
   for _, w in ipairs(wins) do
-    set_diff(w, true)  -- both diff → no non-diff output candidate
+    set_diff(w, true) -- both diff → no non-diff output candidate
   end
 
   package.loaded["utils.jj_merge"] = nil
@@ -278,14 +309,21 @@ end)
 
 test("setup_keymaps registers buffer-local <leader>ml/mb/mr once (3-way)", function()
   reset_tab()
-  local out_buf = new_scratch_buf(true); fill_buf(out_buf)
-  local l_buf = new_scratch_buf(true); fill_buf(l_buf)
-  local b_buf = new_scratch_buf(true); fill_buf(b_buf)
-  local r_buf = new_scratch_buf(true); fill_buf(r_buf)
+  local out_buf = new_scratch_buf(true)
+  fill_buf(out_buf)
+  local l_buf = new_scratch_buf(true)
+  fill_buf(l_buf)
+  local b_buf = new_scratch_buf(true)
+  fill_buf(b_buf)
+  local r_buf = new_scratch_buf(true)
+  fill_buf(r_buf)
 
-  vim.api.nvim_set_current_buf(l_buf); vim.cmd("vsplit")
-  vim.api.nvim_set_current_buf(b_buf); vim.cmd("vsplit")
-  vim.api.nvim_set_current_buf(r_buf); vim.cmd("split")
+  vim.api.nvim_set_current_buf(l_buf)
+  vim.cmd("vsplit")
+  vim.api.nvim_set_current_buf(b_buf)
+  vim.cmd("vsplit")
+  vim.api.nvim_set_current_buf(r_buf)
+  vim.cmd("split")
   vim.api.nvim_set_current_buf(out_buf)
 
   local wins = vim.api.nvim_tabpage_list_wins(0)
@@ -298,12 +336,14 @@ test("setup_keymaps registers buffer-local <leader>ml/mb/mr once (3-way)", funct
   local jj_merge = require("utils.jj_merge")
 
   jj_merge.setup_keymaps()
-  jj_merge.setup_keymaps()  -- second call must be a no-op
+  jj_merge.setup_keymaps() -- second call must be a no-op
 
   local function count_lhs(lhs)
     local n = 0
     for _, m in ipairs(vim.api.nvim_buf_get_keymap(out_buf, "n")) do
-      if m.lhs == lhs then n = n + 1 end
+      if m.lhs == lhs then
+        n = n + 1
+      end
     end
     return n
   end
@@ -322,12 +362,17 @@ end)
 
 test("setup_keymaps in 2-way layout registers ml/mr but not mb", function()
   reset_tab()
-  local out_buf = new_scratch_buf(true); fill_buf(out_buf)
-  local l_buf = new_scratch_buf(true); fill_buf(l_buf)
-  local r_buf = new_scratch_buf(true); fill_buf(r_buf)
+  local out_buf = new_scratch_buf(true)
+  fill_buf(out_buf)
+  local l_buf = new_scratch_buf(true)
+  fill_buf(l_buf)
+  local r_buf = new_scratch_buf(true)
+  fill_buf(r_buf)
 
-  vim.api.nvim_set_current_buf(l_buf); vim.cmd("vsplit")
-  vim.api.nvim_set_current_buf(r_buf); vim.cmd("split")
+  vim.api.nvim_set_current_buf(l_buf)
+  vim.cmd("vsplit")
+  vim.api.nvim_set_current_buf(r_buf)
+  vim.cmd("split")
   vim.api.nvim_set_current_buf(out_buf)
 
   local wins = vim.api.nvim_tabpage_list_wins(0)
@@ -343,7 +388,9 @@ test("setup_keymaps in 2-way layout registers ml/mr but not mb", function()
   local function count_lhs(lhs)
     local n = 0
     for _, m in ipairs(vim.api.nvim_buf_get_keymap(out_buf, "n")) do
-      if m.lhs == lhs then n = n + 1 end
+      if m.lhs == lhs then
+        n = n + 1
+      end
     end
     return n
   end

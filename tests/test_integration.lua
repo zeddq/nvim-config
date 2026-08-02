@@ -5,25 +5,25 @@ local results = {
   passed = 0,
   failed = 0,
   warnings = 0,
-  tests = {}
+  tests = {},
 }
 
 local function test(name, fn)
   local ok, err = pcall(fn)
   if ok then
     results.passed = results.passed + 1
-    table.insert(results.tests, {name = name, status = "PASS"})
+    table.insert(results.tests, { name = name, status = "PASS" })
     print(string.format("✓ %s", name))
   else
     results.failed = results.failed + 1
-    table.insert(results.tests, {name = name, status = "FAIL", error = tostring(err)})
+    table.insert(results.tests, { name = name, status = "FAIL", error = tostring(err) })
     print(string.format("✗ %s: %s", name, err))
   end
 end
 
 local function warn(name, message)
   results.warnings = results.warnings + 1
-  table.insert(results.tests, {name = name, status = "WARN", message = message})
+  table.insert(results.tests, { name = name, status = "WARN", message = message })
   print(string.format("⚠ %s: %s", name, message))
 end
 
@@ -122,8 +122,7 @@ test("Multiple VCS operations work correctly", function()
     error("Should have at least one cache entry")
   end
 
-  print(string.format("  Type: %s, Root: %s, Cache entries: %d",
-    type1, root or "none", stats.valid_entries))
+  print(string.format("  Type: %s, Root: %s, Cache entries: %d", type1, root or "none", stats.valid_entries))
 end)
 
 -- Test 5: Command execution in jj repository (if applicable)

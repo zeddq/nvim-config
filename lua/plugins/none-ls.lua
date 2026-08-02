@@ -237,10 +237,10 @@ return {
           applescript_formatter,
           applescript_code_actions,
 
-          -- Lua
-          formatting.stylua.with({
-            extra_args = { "--indent-type", "Spaces", "--indent-width", "2" },
-          }),
+          -- Lua — options come from stylua.toml at the repo root.
+          -- Do not add extra_args here: stylua's CLI flags override the config
+          -- file, which would silently desync editor formatting from CI.
+          formatting.stylua,
 
           -- Python formatting handled by ruff LSP (not none-ls)
 

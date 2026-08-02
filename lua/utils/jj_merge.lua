@@ -164,7 +164,7 @@ function M.take(role)
       end
 
       local sorted = sort_wins_left_to_right(all_diff_wins)
-      local out_win = sorted[1]  -- Left window is output in 2-way merge
+      local out_win = sorted[1] -- Left window is output in 2-way merge
       local src_idx = (role == "left") and 1 or 2
       local src_win = sorted[src_idx]
       local src_buf = vim.api.nvim_win_get_buf(src_win)

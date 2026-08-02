@@ -18,31 +18,31 @@ vim.opt.rtp:prepend(lazypath)
 -- Load plugins
 ---@type LazySpec
 local plugins = {
-    -- Import plugin specifications
-    -- Order matters: dependencies load first
-    { import = "plugins.snacks" },         -- Priority 1000 (QoL enhancements)
-    { import = "plugins.completion" },     -- Autocompletion
-    { import = "plugins.jj" },             -- Jujutsu VCS (always loaded)
-    { import = "plugins.window-picker" },  -- Window picker (used in e.g. in NeoTree)
-    { import = "plugins.neo-tree" },       -- File explorer with jj support
-    { import = "plugins.vcs-keymaps" },    -- Context-aware VCS keybindings
-    { import = "plugins.claude-code" },    -- Claude Code AI assistant
-    { import = "plugins.lsp" },            -- Language servers
-    { import = "plugins.lazydev" },        -- Neovim Lua API (vim.* completions)
-    { import = "plugins.minuet" },         -- AI inline (ghost text) completion via Codestral
-    { import = "plugins.treesitter" },     -- Syntax highlighting
-    { import = "plugins.none-ls" },        -- Formatting & linting
-    { import = "plugins.ui" },             -- UI plugins (includes gitsigns)
-    { import = "plugins.flash" },          -- Enhanced f/t navigation
-    { import = "plugins.dap" },            -- Debug Adapter Protocol (Python debugging)
-    { import = "plugins.jj-diffconflicts" }, -- Jujutsu aware merge plugin
-    { import = "plugins.soil" },           -- soil plugin (preview for plantuml)
-    { import = "plugins.neorepl" },        -- in-process Lua/Vim REPL buffer
-    { import = "plugins.luapad" },         -- live-evaluating Lua scratchpad
+  -- Import plugin specifications
+  -- Order matters: dependencies load first
+  { import = "plugins.snacks" }, -- Priority 1000 (QoL enhancements)
+  { import = "plugins.completion" }, -- Autocompletion
+  { import = "plugins.jj" }, -- Jujutsu VCS (always loaded)
+  { import = "plugins.window-picker" }, -- Window picker (used in e.g. in NeoTree)
+  { import = "plugins.neo-tree" }, -- File explorer with jj support
+  { import = "plugins.vcs-keymaps" }, -- Context-aware VCS keybindings
+  { import = "plugins.claude-code" }, -- Claude Code AI assistant
+  { import = "plugins.lsp" }, -- Language servers
+  { import = "plugins.lazydev" }, -- Neovim Lua API (vim.* completions)
+  { import = "plugins.minuet" }, -- AI inline (ghost text) completion via Codestral
+  { import = "plugins.treesitter" }, -- Syntax highlighting
+  { import = "plugins.none-ls" }, -- Formatting & linting
+  { import = "plugins.ui" }, -- UI plugins (includes gitsigns)
+  { import = "plugins.flash" }, -- Enhanced f/t navigation
+  { import = "plugins.dap" }, -- Debug Adapter Protocol (Python debugging)
+  { import = "plugins.jj-diffconflicts" }, -- Jujutsu aware merge plugin
+  { import = "plugins.soil" }, -- soil plugin (preview for plantuml)
+  { import = "plugins.neorepl" }, -- in-process Lua/Vim REPL buffer
+  { import = "plugins.luapad" }, -- live-evaluating Lua scratchpad
 }
 
 require("lazy").setup(plugins, {
-    ui = {
+  ui = {
     border = "rounded",
   },
   change_detection = {

@@ -230,7 +230,9 @@ return {
         request = "launch",
         name = "Launch file with arguments",
         program = "${file}",
-        args = function() return prompt_args("Arguments: ") end,
+        args = function()
+          return prompt_args("Arguments: ")
+        end,
       })
 
       -- Configure Bash/Zsh debugger
@@ -264,7 +266,9 @@ return {
             trace = true,
             file = "${file}",
             program = "${file}",
-            cwd = function() return vim.fn.getcwd() end,
+            cwd = function()
+              return vim.fn.getcwd()
+            end,
             pathCat = "cat",
             pathBash = pathBash,
             pathMkfifo = "mkfifo",
@@ -283,12 +287,16 @@ return {
             trace = true,
             file = "${file}",
             program = "${file}",
-            cwd = function() return vim.fn.getcwd() end,
+            cwd = function()
+              return vim.fn.getcwd()
+            end,
             pathCat = "cat",
             pathBash = pathBash,
             pathMkfifo = "mkfifo",
             pathPkill = "pkill",
-            args = function() return prompt_args("Arguments: ") end,
+            args = function()
+              return prompt_args("Arguments: ")
+            end,
             env = {},
             terminalKind = "integrated",
           },
